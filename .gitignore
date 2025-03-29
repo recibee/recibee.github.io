@@ -10,7 +10,7 @@ yarn-error.log*
 .env.*.local
 
 # Build files
-dist/
+# Keep dist/ for GitHub Pages
 build/
 
 # IDE and editor files
