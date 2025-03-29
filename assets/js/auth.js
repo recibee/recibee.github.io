@@ -36,7 +36,7 @@ class RecibeeAuth {
                 }
             }
             
-            // Fetch subscription status
+            // Fetch subscription status - this will also save the user profile
             await this.fetchSubscriptionStatus();
         }
         
@@ -55,6 +55,22 @@ class RecibeeAuth {
                         console.error('Error parsing local user data:', e);
                     }
                 }
+                
+                // Save user data to localStorage
+                const userProfile = {
+                    id: session.user.id,
+                    email: session.user.email,
+                    name: session.user.user_metadata?.full_name || 
+                          session.user.user_metadata?.name || 
+                          'User',
+                    provider: session.user.app_metadata?.provider,
+                    avatarUrl: session.user.user_metadata?.avatar_url,
+                    lastLogin: new Date().toISOString()
+                };
+                localStorage.setItem('recibee_user', JSON.stringify(userProfile));
+                
+                // Ensure user profile is saved to Supabase
+                await this.ensureUserProfileSaved();
                 
                 // Fetch subscription status
                 await this.fetchSubscriptionStatus();
@@ -151,6 +167,10 @@ class RecibeeAuth {
                             };
                             localStorage.setItem('recibee_subscription', JSON.stringify(subscriptionWithCache));
                             this.currentUser.subscription = subscriptionWithCache;
+                            
+                            // Also ensure user profile data is stored
+                            await this.ensureUserProfileSaved();
+                            
                             return subscriptionWithCache;
                         } else {
                             // If we can't create it, just use the default
@@ -160,6 +180,10 @@ class RecibeeAuth {
                             };
                             localStorage.setItem('recibee_subscription', JSON.stringify(subscriptionWithCache));
                             this.currentUser.subscription = subscriptionWithCache;
+                            
+                            // Still try to save user profile
+                            await this.ensureUserProfileSaved();
+                            
                             return subscriptionWithCache;
                         }
                     } catch (insertErr) {
@@ -171,10 +195,18 @@ class RecibeeAuth {
                         };
                         localStorage.setItem('recibee_subscription', JSON.stringify(subscriptionWithCache));
                         this.currentUser.subscription = subscriptionWithCache;
+                        
+                        // Still try to save user profile
+                        await this.ensureUserProfileSaved();
+                        
                         return subscriptionWithCache;
                     }
                 } else {
                     console.error('Error fetching subscription:', error);
+                    
+                    // Still try to save user profile even if subscription fetch failed
+                    await this.ensureUserProfileSaved();
+                    
                     return null;
                 }
             }
@@ -186,10 +218,77 @@ class RecibeeAuth {
             };
             localStorage.setItem('recibee_subscription', JSON.stringify(subscriptionWithCache));
             this.currentUser.subscription = subscriptionWithCache;
+            
+            // Ensure user profile is saved
+            await this.ensureUserProfileSaved();
+            
             return subscriptionWithCache;
         } catch (e) {
             console.error('Error in fetchSubscriptionStatus:', e);
+            
+            // Still try to save user profile even if the whole process failed
+            try {
+                await this.ensureUserProfileSaved();
+            } catch (profileError) {
+                console.error('Error saving user profile during error recovery:', profileError);
+            }
+            
             return null;
+        }
+    }
+    
+    /**
+     * Ensure the user profile is saved to Supabase
+     */
+    async ensureUserProfileSaved() {
+        if (!this.currentUser) return;
+        
+        try {
+            // Extract user metadata from auth provider
+            const userData = {
+                user_id: this.currentUser.id,
+                full_name: this.currentUser.user_metadata?.full_name || 
+                           this.currentUser.user_metadata?.name || 
+                           'User',
+                avatar_url: this.currentUser.user_metadata?.avatar_url,
+                provider: this.currentUser.app_metadata?.provider,
+                email: this.currentUser.email,
+                last_sign_in: new Date().toISOString()
+            };
+            
+            // Check if user profile exists
+            const { data: existingProfile, error: fetchError } = await supabase
+                .from('user_profiles')
+                .select('id')
+                .eq('user_id', this.currentUser.id)
+                .single();
+                
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                // If error is not just "no rows found", log it
+                console.error('Error checking user profile:', fetchError);
+            }
+            
+            if (existingProfile) {
+                // Update existing profile
+                const { error: updateError } = await supabase
+                    .from('user_profiles')
+                    .update(userData)
+                    .eq('user_id', this.currentUser.id);
+                
+                if (updateError) throw updateError;
+                console.log('User profile updated successfully');
+            } else {
+                // Create new profile
+                const { error: insertError } = await supabase
+                    .from('user_profiles')
+                    .insert([userData]);
+                
+                if (insertError) throw insertError;
+                console.log('User profile created successfully');
+            }
+        } catch (error) {
+            console.error('Error saving user profile to Supabase:', error);
+            // Don't throw, just log the error to prevent breaking the auth flow
         }
     }
     
@@ -283,9 +382,9 @@ class RecibeeAuth {
         
         if (this.isAuthenticated()) {
             // User is authenticated, show profile icon
-            const provider = this.currentUser?.provider || 'default';
-            const avatarUrl = this.currentUser?.avatarUrl;
-            const userName = this.currentUser?.name || 'User';
+            const provider = this.currentUser?.provider || this.currentUser?.app_metadata?.provider || 'default';
+            const avatarUrl = this.currentUser?.avatarUrl || this.currentUser?.user_metadata?.avatar_url;
+            const userName = this.currentUser?.name || this.currentUser?.user_metadata?.full_name || this.currentUser?.user_metadata?.name || 'User';
             
             // Get provider icon
             let providerIcon = '';
@@ -367,20 +466,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add redirection logic based on URL
     const pathname = window.location.pathname;
-    if (pathname.endsWith('/account.html')) {
-        // No redirection needed on account page
+    
+    // No redirection needed on account, signup, or login pages
+    if (pathname.endsWith('/account.html') || 
+        pathname.endsWith('/signup.html') || 
+        pathname.endsWith('/login.html')) {
         return;
     }
     
-    if (pathname.endsWith('/upload.html') && !recibeeAuth.isAuthenticated()) {
-        // Redirect to login if trying to access upload without auth
-        window.location.href = '/pages/login.html?returnUrl=' + encodeURIComponent(pathname);
-        return;
+    // Redirect logic for upload page
+    if (pathname.endsWith('/upload.html')) {
+        if (!recibeeAuth.isAuthenticated()) {
+            // Redirect to login if trying to access upload without auth
+            window.location.href = '/pages/login.html?returnUrl=' + encodeURIComponent(pathname);
+            return;
+        } else if (!recibeeAuth.isTrialActive()) {
+            // Redirect to pricing if trial expired
+            window.location.href = '/pages/pricing.html';
+            return;
+        }
     }
     
-    if (pathname.endsWith('/upload.html') && recibeeAuth.isAuthenticated() && !recibeeAuth.isTrialActive()) {
-        // Redirect to pricing if trial expired
-        window.location.href = '/pages/pricing.html';
+    // Handle redirection for auth success page
+    if (pathname.includes('/auth/callback') || pathname.includes('/auth/success')) {
+        // This is a callback from auth provider, redirect based on trial
+        recibeeAuth.redirectBasedOnTrial();
         return;
     }
 });

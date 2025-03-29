@@ -75,8 +75,11 @@
                     <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
                 </a>
             </div>
-            <div class="flex items-center">
-                <a href="/pages/login.html" class="btn-secondary">Sign In</a>
+            <div id="auth-container">
+                <!-- Auth UI will be injected here by recibeeAuth.updateAuthUI() -->
+                <div class="flex items-center space-x-4">
+                    <a href="/pages/login.html" class="btn-secondary">Sign In</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -181,6 +184,11 @@
             const errorMessage = document.getElementById('error-message');
             const progressBar = document.getElementById('progress-bar');
             const verificationMessage = document.getElementById('verification-message');
+            
+            // Initialize RecibeeAuth if available
+            if (window.recibeeAuth) {
+                window.recibeeAuth.updateAuthUI();
+            }
             
             // Generate or retrieve a session ID for tracking uploads
             function getSessionId() {
@@ -411,7 +419,13 @@
                     
                     // Redirect after a short delay - even if we had database errors
                     setTimeout(() => {
-                        window.location.href = 'account.html';
+                        if (window.recibeeAuth) {
+                            // Use the RecibeeAuth utility for redirection
+                            window.recibeeAuth.redirectBasedOnTrial();
+                        } else {
+                            // Fallback to account page if RecibeeAuth is not available
+                            window.location.href = 'account.html';
+                        }
                     }, 2000);
                 } catch (error) {
                     console.error('Error handling social sign in completion:', error);
@@ -422,7 +436,13 @@
                     setTimeout(() => {
                         // Clear URL parameters/hash and redirect to homepage if we couldn't authenticate
                         if (session && session.user) {
-                            window.location.href = 'account.html';
+                            if (window.recibeeAuth) {
+                                // Use the RecibeeAuth utility for redirection
+                                window.recibeeAuth.redirectBasedOnTrial();
+                            } else {
+                                // Fallback to account page
+                                window.location.href = 'account.html';
+                            }
                         } else {
                             window.location.href = '/index.html';
                         }

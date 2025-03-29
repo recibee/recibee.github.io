@@ -27,6 +27,8 @@
     
     <!-- Supabase JS Library -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Auth JS -->
+    <script src="/assets/js/auth.js"></script>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
     <!-- Progress Bar -->
@@ -47,8 +49,12 @@
                     <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
                 </div>
             </div>
-            <div id="auth-buttons">
-                <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
+            <div id="auth-container">
+                <!-- Auth UI will be injected here by recibeeAuth.updateAuthUI() -->
+                <div class="flex items-center space-x-4">
+                    <a href="/pages/login.html" class="text-white hover:text-orange-200 transition duration-300">Login</a>
+                    <a href="/pages/signup.html" class="bg-white text-orange-500 hover:bg-orange-100 px-4 py-2 rounded-full font-medium transition duration-300">Sign Up</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -371,7 +377,7 @@
             const usageCount = document.getElementById('usage-count');
             const remainingUses = document.getElementById('remaining-uses');
             const userInfo = document.getElementById('user-info');
-            const authButtons = document.getElementById('auth-buttons');
+            const authContainer = document.getElementById('auth-container');
             const analyzingStatus = document.getElementById('analyzing-status');
             const findRecipesBtn = document.getElementById('find-recipes');
             
@@ -388,25 +394,40 @@
                 localUses = parseInt(localStorage.getItem('recibee_uses'));
             }
             
-            // Check if user is logged in
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
+            // Check if user is logged in using RecibeeAuth
+            if (window.recibeeAuth && window.recibeeAuth.isAuthenticated()) {
+                const user = window.recibeeAuth.getUser();
                 isLoggedIn = true;
                 userInfo.classList.remove('hidden');
-                authButtons.classList.add('hidden');
+                authContainer.classList.add('hidden');
                 
-                // Check if the user is a pro subscriber
-                try {
-                    const { data: subscription } = await supabaseClient
-                        .from('subscriptions')
-                        .select('is_active')
-                        .eq('user_id', user.id)
-                        .single();
+                // Check if the user is on an active trial or subscription
+                isProUser = window.recibeeAuth.isTrialActive();
+            } else {
+                // Use fallback method if RecibeeAuth is not available
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    isLoggedIn = true;
+                    userInfo.classList.remove('hidden');
                     
-                    isProUser = subscription && subscription.is_active;
-                } catch (error) {
-                    console.error('Error checking pro status:', error);
+                    // Check if the user is a pro subscriber
+                    try {
+                        const { data: subscription } = await supabaseClient
+                            .from('subscriptions')
+                            .select('is_active')
+                            .eq('user_id', user.id)
+                            .single();
+                        
+                        isProUser = subscription && subscription.is_active;
+                    } catch (error) {
+                        console.error('Error checking pro status:', error);
+                    }
                 }
+            }
+            
+            // If user is authenticated, let RecibeeAuth update the UI
+            if (window.recibeeAuth) {
+                window.recibeeAuth.updateAuthUI();
             }
             
             // Get upload count from Supabase
