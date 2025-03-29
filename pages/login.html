@@ -226,13 +226,25 @@
                     
                     const userId = session.user.id;
                     
-                    // Check for error in URL query parameters (from redirect)
+                    // Check for error in URL query parameters AND hash fragment (from redirect)
                     const urlParams = new URLSearchParams(window.location.search);
-                    const errorParam = urlParams.get('error');
-                    const errorDescription = urlParams.get('error_description');
+                    const hashParams = new URLSearchParams(window.location.hash.substring(1));
                     
+                    const errorParam = urlParams.get('error') || hashParams.get('error');
+                    const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
+                    
+                    // If there's an error but we have a valid session, we'll show the error but still proceed
                     if (errorParam) {
-                        throw new Error(errorDescription || `Authentication error: ${errorParam}`);
+                        console.error(`Authentication warning: ${errorParam} - ${errorDescription}`);
+                        showError(errorDescription || `Authentication warning: ${errorParam}`);
+                        
+                        // Clear the error parameters from URL without refreshing page
+                        // Preserve only the returnUrl parameter if it exists
+                        const returnUrl = urlParams.get('returnUrl');
+                        const cleanUrl = window.location.pathname + (returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : '');
+                        window.history.replaceState({}, document.title, cleanUrl);
+                        
+                        // But we'll still proceed with the rest of the function since we have a valid session
                     }
                     
                     // Try to link uploads with error handling
@@ -250,21 +262,45 @@
                         name: session.user.user_metadata.full_name || session.user.user_metadata.name || 'User',
                         provider: session.user.app_metadata.provider,
                         avatarUrl: session.user.user_metadata.avatar_url,
-                        lastLogin: new Date().toISOString()
+                        lastLogin: new Date().toISOString(),
+                        plan: 'free' // Default to free plan
                     };
                     
                     localStorage.setItem('recibee_user', JSON.stringify(userProfile));
                     
                     // Redirect to the intended page or account page
                     const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
-                    if (returnUrl) {
-                        window.location.href = returnUrl;
-                    } else {
-                        window.location.href = 'account.html';
-                    }
+                    
+                    // Show a brief success message
+                    showSuccess("Login successful! Redirecting...");
+                    
+                    // Small delay to show the success message
+                    setTimeout(() => {
+                        if (returnUrl) {
+                            window.location.href = returnUrl;
+                        } else {
+                            window.location.href = 'account.html';
+                        }
+                    }, 1000);
                 } catch (error) {
                     console.error('Error handling social sign in completion:', error);
                     showError(error.message || 'Failed to complete sign in. Please try again.');
+                    
+                    // Even if we have an error, let's still redirect after a longer delay
+                    // This ensures users don't get stuck on the login page
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+                        // Clear URL parameters/hash and redirect
+                        if (session && session.user) {
+                            if (returnUrl) {
+                                window.location.href = returnUrl;
+                            } else {
+                                window.location.href = 'account.html';
+                            }
+                        } else {
+                            window.location.href = '/index.html';
+                        }
+                    }, 3000);
                 }
             }
             

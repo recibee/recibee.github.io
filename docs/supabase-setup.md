@@ -2,6 +2,240 @@
 
 This document explains how to set up the Supabase backend for the Recibee app's upload tracking system.
 
+## Setting Up Supabase for Recibee
+
+This guide explains how to set up Supabase for the Recibee application.
+
+### Prerequisites
+
+1. A Supabase account (https://supabase.com)
+2. Admin access to your Supabase project
+
+### Step 1: Create a New Supabase Project
+
+1. Go to the Supabase dashboard (https://app.supabase.com)
+2. Click "New Project"
+3. Fill in the project details:
+   - Name: Recibee
+   - Database Password: (create a strong password)
+   - Region: (select the region closest to your users)
+4. Click "Create New Project"
+
+### Step 2: Set Up Database Tables
+
+You need to create several tables to support the Recibee application functionality.
+
+#### Option 1: Use the SQL Editor (Recommended)
+
+1. Go to your Supabase Dashboard > SQL Editor
+2. Create a new query
+3. Execute the following SQL scripts in this order:
+   - `user_profiles_table.sql` - Sets up user profile tables and triggers
+   - `subscriptions_table.sql` - Sets up subscription and uploads tables
+   
+These scripts are located in the `docs` folder of your project.
+
+#### Option 2: Manual Table Creation
+
+If you prefer to create tables manually:
+
+1. Go to Table Editor
+2. Create tables with the following structure:
+
+##### user_profiles
+
+```sql
+CREATE TABLE user_profiles (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) UNIQUE NOT NULL,
+  full_name TEXT,
+  avatar_url TEXT,
+  provider TEXT NOT NULL,
+  provider_id TEXT,
+  email TEXT,
+  last_sign_in TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  provider_metadata JSONB,
+  locale TEXT,
+  timezone TEXT,
+  preferences JSONB DEFAULT '{}'::jsonb
+);
+```
+
+##### subscriptions
+
+```sql
+CREATE TABLE subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) UNIQUE NOT NULL,
+  plan_type TEXT DEFAULT 'free' NOT NULL,
+  is_active BOOLEAN DEFAULT true NOT NULL,
+  start_date TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  end_date TIMESTAMPTZ,
+  trial_end_date TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days'),
+  last_billing_date TIMESTAMPTZ,
+  next_billing_date TIMESTAMPTZ,
+  payment_method_id TEXT,
+  subscription_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+##### uploads
+
+```sql
+CREATE TABLE uploads (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) NULL,
+  session_id TEXT NOT NULL,
+  file_path TEXT NOT NULL,
+  file_size INTEGER,
+  file_type TEXT,
+  content_type TEXT,
+  detection_results JSONB,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### Step 3: Configure Authentication
+
+1. Go to Authentication > Settings
+2. Under Site URL, enter your website URL: `https://recibee.github.io`
+3. Under Redirect URLs, add the following:
+   - `https://recibee.github.io/pages/login.html`
+   - `https://recibee.github.io/pages/signup.html`
+   - `https://recibee.github.io/`
+
+### Step 4: Enable Social Authentication Providers
+
+Follow the instructions in the `social_auth_setup.md` file to configure:
+- Google
+- Facebook
+- Twitter/X
+
+### Step 5: Set Up Storage
+
+1. Go to Storage
+2. Create the following buckets:
+   - `uploads` (for user-uploaded images)
+   - `recipe-images` (for recipe images)
+   - `profile-images` (for user profile pictures)
+
+For each bucket:
+1. Set public access to "Require token for all operations"
+2. Create policies to allow users to read/write their own files
+
+### Step 6: API Keys
+
+1. Go to Project Settings > API
+2. Note your Project URL and anon/public key
+3. Update these values in your application's configuration files
+
+### Step 7: Database Error Prevention
+
+To fix the "Database error saving new user" issue:
+
+1. Go to SQL Editor
+2. Run the following script to ensure the user_profiles table is properly set up:
+
+```sql
+-- Check if trigger exists and recreate if needed
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- Recreate the trigger function with error handling
+CREATE OR REPLACE FUNCTION handle_social_sign_in()
+RETURNS TRIGGER AS $$
+BEGIN
+  BEGIN
+    -- Insert or update the user's profile with error handling
+    INSERT INTO user_profiles (
+      user_id,
+      full_name,
+      avatar_url,
+      provider,
+      provider_id,
+      email,
+      provider_metadata
+    )
+    VALUES (
+      NEW.id,
+      NEW.raw_user_meta_data->>'full_name',
+      NEW.raw_user_meta_data->>'avatar_url',
+      NEW.raw_app_meta_data->>'provider',
+      NEW.raw_user_meta_data->>'sub',
+      NEW.email,
+      NEW.raw_user_meta_data
+    )
+    ON CONFLICT (user_id) 
+    DO UPDATE SET
+      full_name = EXCLUDED.full_name,
+      avatar_url = EXCLUDED.avatar_url,
+      provider = EXCLUDED.provider,
+      provider_id = EXCLUDED.provider_id,
+      email = EXCLUDED.email,
+      last_sign_in = NOW(),
+      provider_metadata = EXCLUDED.provider_metadata,
+      updated_at = NOW();
+  EXCEPTION WHEN OTHERS THEN
+    -- Log error but don't fail the trigger
+    RAISE NOTICE 'Error in handle_social_sign_in trigger: %', SQLERRM;
+  END;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create the trigger again
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION handle_social_sign_in();
+```
+
+This prevents database errors from breaking the user signup/login process.
+
+### Step 8: Verification
+
+To ensure everything is set up correctly:
+
+1. Check that all tables have the correct Row Level Security (RLS) policies
+2. Verify that the triggers for user profile creation are working
+3. Test the social login flow through the application
+
+### Step 9: Troubleshooting Common Issues
+
+#### Database Error Saving New User
+
+If you encounter the "Database error saving new user" error:
+
+1. Check that your database tables are correctly set up
+2. Ensure the `user_profiles` table exists and has the correct schema
+3. Verify that the trigger function for handling social sign-ins is properly created
+4. Make sure the redirect URLs in your OAuth providers match exactly with what Supabase expects
+5. Run the SQL script in Step 7 above to fix common trigger issues
+
+#### Authentication Redirect Issues
+
+If you're having issues with authentication redirects:
+
+1. Ensure your Site URL in Supabase Authentication settings is set to `https://recibee.github.io`
+2. Check that all redirect URLs are added correctly
+3. Verify that the OAuth redirect URLs in your social providers match the Supabase callback URL
+4. Clear browser cache and cookies if testing repeatedly
+
+### Step 10: Next Steps
+
+After setting up Supabase:
+
+1. Update your frontend code with the correct Supabase project URL and anon key
+2. Test the authentication flow end-to-end
+3. Implement proper error handling for edge cases
+4. Set up monitoring for any database or authentication issues
+
 ## Prerequisites
 
 1. A Supabase account (create one at [https://supabase.com](https://supabase.com) if you don't have one)
@@ -115,71 +349,4 @@ serve(async (req) => {
   const { count, error } = await supabaseClient
     .from('uploads')
     .select('*', { count: 'exact' })
-    .or(`session_id.eq.${session_id},user_id.eq.${user_id}`)
-  
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 400,
-    })
-  }
-  
-  // Check if subscription exists for user
-  let isPro = false
-  if (user_id) {
-    const { data: subscription } = await supabaseClient
-      .from('subscriptions')
-      .select('is_active')
-      .eq('user_id', user_id)
-      .single()
-    
-    isPro = subscription?.is_active || false
-  }
-  
-  // Determine if the upload is allowed
-  const uploadAllowed = isPro || (count < 3)
-  
-  return new Response(
-    JSON.stringify({
-      allowed: uploadAllowed,
-      remainingUploads: isPro ? 'unlimited' : Math.max(0, 3 - count),
-      isPro,
-    }),
-    { headers: { 'Content-Type': 'application/json' } },
-  )
-})
-```
-
-4. Deploy the function:
-
-```bash
-supabase functions deploy validate-upload
-```
-
-## Step 4: Update Configuration in Your App
-
-Update the Supabase URL and anon key in your application:
-
-1. Open `supabase.js` and `upload.html`
-2. Replace the placeholder values with your actual Supabase URL and anon key:
-
-```javascript
-const SUPABASE_URL = 'https://your-actual-project-url.supabase.co';
-const SUPABASE_ANON_KEY = 'your-actual-anon-key';
-```
-
-## Step 5: Test the Integration
-
-1. Make sure the Supabase client is correctly loaded in your HTML files
-2. Test anonymous uploads and verify they're tracked in the database
-3. Test user registration/login and verify uploads are associated with user accounts
-4. Test the upload limit enforcement for both anonymous and logged-in users
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. Check browser console for errors
-2. Verify Supabase credentials
-3. Check network requests to ensure they're reaching Supabase
-4. Review Supabase logs for any errors during requests 
+    .or(`
