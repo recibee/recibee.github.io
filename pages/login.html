@@ -180,6 +180,33 @@
             // Make sure we have a session ID
             const sessionId = getSessionId();
             
+            // Helper to get token from Supabase localStorage if possible
+            function getSupabaseToken() {
+                try {
+                    // Try to get token from our own storage first
+                    let token = localStorage.getItem('sb-access-token');
+                    if (token) return token;
+                    
+                    // Otherwise try to extract from Supabase's stored auth data
+                    const supabaseKey = Object.keys(localStorage).find(key => 
+                        key.startsWith('sb-') && key.includes('auth') && key.includes(SUPABASE_URL.replace('https://', ''))
+                    );
+                    
+                    if (supabaseKey) {
+                        const authData = JSON.parse(localStorage.getItem(supabaseKey));
+                        if (authData && authData.access_token) {
+                            // Also store it in our format for future use
+                            localStorage.setItem('sb-access-token', authData.access_token);
+                            return authData.access_token;
+                        }
+                    }
+                    return null;
+                } catch (e) {
+                    console.error('Error extracting token:', e);
+                    return null;
+                }
+            }
+            
             // Show error message
             function showError(message) {
                 errorMessage.textContent = message;
@@ -226,6 +253,23 @@
                     
                     const userId = session.user.id;
                     console.log('Social sign-in complete for user:', userId);
+                    
+                    // Debug logging for troubleshooting
+                    console.log('Session structure:', JSON.stringify({
+                        access_token: session.access_token ? '[PRESENT]' : '[MISSING]',
+                        refresh_token: session.refresh_token ? '[PRESENT]' : '[MISSING]',
+                        user_id: session.user.id,
+                        email: session.user.email,
+                        user_metadata: session.user.user_metadata,
+                        app_metadata: session.user.app_metadata
+                    }));
+                    
+                    // Extract token and store for API calls
+                    const accessToken = session.access_token;
+                    if (accessToken) {
+                        localStorage.setItem('sb-access-token', accessToken);
+                        console.log('Access token stored for API calls');
+                    }
                     
                     // Check for error in URL query parameters AND hash fragment (from redirect)
                     const urlParams = new URLSearchParams(window.location.search);
@@ -348,46 +392,69 @@
                     
                     console.log('User profile data:', JSON.stringify(userData));
                     
-                    // Check if profile already exists
-                    const { data: existingProfile, error: fetchError } = await supabaseClient
-                        .from('user_profiles')
-                        .select('id')
-                        .eq('user_id', user.id)
-                        .single();
-                        
-                    if (fetchError && fetchError.code !== 'PGRST116') {
-                        console.error('Error checking for existing profile:', fetchError);
+                    // Try using direct REST API call instead of Supabase client
+                    const token = user.access_token || getSupabaseToken();
+                    if (!token) {
+                        console.error('No access token available for API call');
+                        return;
                     }
                     
-                    if (existingProfile) {
-                        // Update existing profile
-                        console.log('Updating existing profile');
-                        const { error: updateError } = await supabaseClient
-                            .from('user_profiles')
-                            .update(userData)
-                            .eq('user_id', user.id);
-                            
-                        if (updateError) {
-                            console.error('Error updating profile:', updateError);
-                            throw updateError;
+                    // First check if profile exists
+                    const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}&select=id`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${token}`
                         }
-                        console.log('User profile updated successfully');
+                    });
+                    
+                    if (!checkResponse.ok) {
+                        console.error('Error checking profile existence:', await checkResponse.text());
+                    }
+                    
+                    const existingProfile = await checkResponse.json();
+                    
+                    if (existingProfile && existingProfile.length > 0) {
+                        // Update existing profile
+                        console.log('Updating existing profile via REST API');
+                        const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${user.id}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(userData)
+                        });
+                        
+                        if (!updateResponse.ok) {
+                            console.error('Error updating profile via REST API:', await updateResponse.text());
+                            throw new Error('Failed to update profile');
+                        }
+                        console.log('User profile updated successfully via REST API');
                     } else {
                         // Create new profile
-                        console.log('Creating new profile');
-                        const { error: insertError } = await supabaseClient
-                            .from('user_profiles')
-                            .insert([userData]);
-                            
-                        if (insertError) {
-                            console.error('Error creating profile:', insertError);
-                            throw insertError;
+                        console.log('Creating new profile via REST API');
+                        const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${token}`,
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify(userData)
+                        });
+                        
+                        if (!insertResponse.ok) {
+                            console.error('Error creating profile via REST API:', await insertResponse.text());
+                            throw new Error('Failed to create profile');
                         }
-                        console.log('User profile created successfully');
+                        console.log('User profile created successfully via REST API');
                     }
                 } catch (error) {
                     console.error('Error in saveUserProfileToSupabase:', error);
-                    throw error;
                 }
             }
             
@@ -418,7 +485,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin + '/login.html' + window.location.search,
+                            redirectTo: 'https://recibee.github.io/login.html' + window.location.search,
                             queryParams: {
                                 access_type: 'offline',
                                 prompt: 'consent',
