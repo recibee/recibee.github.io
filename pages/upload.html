@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Primary Meta Tags -->
     <title>Upload Ingredients - Recibee</title>
     <meta name="title" content="Upload Ingredients - Recibee">
@@ -35,21 +35,20 @@
     <!-- Navigation -->
     <nav class="bg-white backdrop-blur-sm bg-opacity-95 shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
         <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
-            <a href="/pages/index.html" class="flex items-center">
+            <a href="/index.html" class="flex items-center">
                 <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
                 <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
             </a>
             <div class="hidden md:flex space-x-6">
-                <a href="/pages/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
-                <a href="/pages/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
+                <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
                 <div id="user-info" class="hidden">
                     <span id="usage-count" class="text-dark mr-3">0/3 Uses</span>
                     <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
                 </div>
             </div>
             <div id="auth-buttons">
-                <a href="/pages/signup.html" class="btn-secondary mr-2">Sign Up</a>
-                <a href="/pages/login.html" class="btn-primary">Login</a>
+                <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
             </div>
         </div>
     </nav>
@@ -614,17 +613,15 @@
                     const videoElement = document.createElement('video');
                     videoElement.srcObject = stream;
                     videoElement.autoplay = true;
-                    videoElement.style.width = '100%';
-                    videoElement.style.maxHeight = '60vh';
-                    videoElement.style.objectFit = 'contain';
+                    videoElement.playsInline = true; // Important for iOS
+                    videoElement.muted = true;  // Often needed for autoplay
                     
                     // Create a canvas to capture the image
                     const canvas = document.createElement('canvas');
                     
                     // Create UI for camera view
                     const cameraView = document.createElement('div');
-                    cameraView.className = 'absolute inset-0 bg-dark z-50 flex flex-col';
-                    cameraView.style.padding = '1rem';
+                    cameraView.className = 'camera-view';
                     
                     // Add header with title and close button
                     const header = document.createElement('div');
@@ -643,12 +640,16 @@
                     
                     // Add video container
                     const videoContainer = document.createElement('div');
-                    videoContainer.className = 'flex-grow flex items-center justify-center bg-black rounded-lg overflow-hidden';
+                    videoContainer.className = 'camera-container';
+                    
+                    // Ensure video is properly sized within the container
+                    videoElement.className = 'camera-video';
                     videoContainer.appendChild(videoElement);
                     
                     // Add capture button
                     const captureBtn = document.createElement('button');
-                    captureBtn.className = 'btn-primary w-full mt-4 py-3 flex items-center justify-center';
+                    captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center';
+                    captureBtn.style.marginTop = 'auto';
                     captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capture Photo';
                     
                     // Assemble camera view
@@ -671,40 +672,45 @@
                     
                     // Handle capture button
                     captureBtn.addEventListener('click', function() {
-                        // Set canvas dimensions to match video
-                        canvas.width = videoElement.videoWidth;
-                        canvas.height = videoElement.videoHeight;
-                        
-                        // Draw the current video frame to the canvas
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                        
-                        // Convert canvas to image data URL
-                        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        
-                        // Set the preview image
-                        imagePreview.src = imageDataUrl;
-                        uploadPrompt.classList.add('hidden');
-                        previewContainer.classList.remove('hidden');
-                        
-                        // Convert data URL to Blob for potential upload
-                        canvas.toBlob(function(blob) {
-                            // Create a File object from the Blob
-                            const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+                        try {
+                            // Set canvas dimensions to match video
+                            canvas.width = videoElement.videoWidth;
+                            canvas.height = videoElement.videoHeight;
                             
-                            // Store the file for later use
-                            fileUpload.files = new DataTransfer().files;
+                            // Draw the current video frame to the canvas
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
                             
-                            // Note: This is a workaround, but the actual File object
-                            // is not needed since we're using the data URL directly
-                        }, 'image/jpeg', 0.8);
-                        
-                        // Stop video stream
-                        stream.getTracks().forEach(track => track.stop());
-                        
-                        // Remove camera view
-                        document.body.removeChild(cameraView);
-                        document.body.style.overflow = '';
+                            // Convert canvas to image data URL
+                            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            
+                            // Set the preview image
+                            imagePreview.src = imageDataUrl;
+                            uploadPrompt.classList.add('hidden');
+                            previewContainer.classList.remove('hidden');
+                            
+                            // Convert data URL to Blob for potential upload
+                            canvas.toBlob(function(blob) {
+                                // Create a File object from the Blob
+                                const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+                                
+                                // Store the file for later use
+                                fileUpload.files = new DataTransfer().files;
+                                
+                                // Note: This is a workaround, but the actual File object
+                                // is not needed since we're using the data URL directly
+                            }, 'image/jpeg', 0.8);
+                            
+                            // Stop video stream
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Remove camera view
+                            document.body.removeChild(cameraView);
+                            document.body.style.overflow = '';
+                        } catch (error) {
+                            console.error('Error capturing photo:', error);
+                            alert('Failed to capture photo. Please try again.');
+                        }
                     });
                     
                 } catch (error) {

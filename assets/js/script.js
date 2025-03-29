@@ -182,21 +182,30 @@ document.addEventListener('DOMContentLoaded', function() {
         button.classList.add('btn-success');
         button.style.backgroundColor = '#4CAF50'; // Explicitly set green color
         button.style.borderRadius = '0.75rem'; // Ensure rounded corners (rounded-xl)
+        
+        // Show success message
+        if (successMessage && formStatus) {
+            successMessage.classList.remove('hidden');
+            formStatus.classList.remove('hidden');
+        }
 
         // Create wrapper for smooth transition
         const wrapper = document.createElement('div');
         wrapper.style.position = 'relative';
-        wrapper.style.display = 'inline-block';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.justifyContent = 'center';
         wrapper.style.width = '100%';
         wrapper.style.height = '100%';
+        wrapper.style.overflow = 'hidden';
         
         // Create text elements for transition
         const oldText = document.createElement('div');
         oldText.innerHTML = button.innerHTML;
         oldText.style.position = 'absolute';
         oldText.style.width = '100%';
-        oldText.style.top = '50%';
-        oldText.style.transform = 'translateY(-50%) translateZ(0)';
+        oldText.style.textAlign = 'center';
+        oldText.style.transform = 'translateY(0) translateZ(0)';
         oldText.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
         oldText.style.opacity = '1';
 
@@ -204,10 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
         newText.innerHTML = '<i class="fas fa-check"></i> You\'re Set';
         newText.style.position = 'absolute';
         newText.style.width = '100%';
-        newText.style.top = '50%';
-        newText.style.transform = 'translateY(50%) translateZ(0)';
+        newText.style.textAlign = 'center';
+        newText.style.transform = 'translateY(100%) translateZ(0)';
         newText.style.opacity = '0';
         newText.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        newText.style.fontSize = '0.95rem'; // Slightly reduce font size for small devices
 
         // Set up the transition
         wrapper.appendChild(oldText);
@@ -217,19 +227,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Trigger the transition with slight delay
         setTimeout(() => {
-            oldText.style.transform = 'translateY(-150%) translateZ(0)';
+            oldText.style.transform = 'translateY(-100%) translateZ(0)';
             oldText.style.opacity = '0';
-            newText.style.transform = 'translateY(-50%) translateZ(0)';
+            newText.style.transform = 'translateY(0) translateZ(0)';
             newText.style.opacity = '1';
         }, 50);
 
         // Clean up after transition
         setTimeout(() => {
-            button.innerHTML = '<i class="fas fa-check"></i> You\'re Set';
-            // Ensure the button stays green after cleanup
+            button.innerHTML = '<i class="fas fa-check"></i>&nbsp;You\'re Set';
+            // Add non-breaking space and ensure the button stays green after cleanup
             button.style.backgroundColor = '#4CAF50';
             button.style.borderRadius = '0.75rem'; // Maintain rounded corners
             button.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            button.style.display = 'flex';
+            button.style.alignItems = 'center';
+            button.style.justifyContent = 'center';
+            button.style.gap = '0.25rem';
+            button.style.whiteSpace = 'nowrap';
+            button.style.padding = '0.5rem 1rem';
         }, 650);
     }
 

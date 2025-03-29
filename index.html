@@ -110,6 +110,30 @@
             height: 28px;
             width: auto;
         }
+        
+        /* Mobile-specific fixes */
+        @media (max-width: 640px) {
+            .btn-success {
+                padding: 0.5rem 1rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.25rem !important;
+                font-size: 0.95rem !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Ensure form elements stack properly on small screens */
+            #waitlistForm {
+                flex-direction: column;
+            }
+            
+            /* Ensure button has proper width on mobile */
+            #waitlistForm button {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
     </style>
     
     <!-- Polyfills -->
@@ -729,7 +753,6 @@
                         </button>
                     </form>
                     <div id="formStatus" class="mt-4 text-center hidden">
-                        <p id="successMessage" class="text-green-600 font-inter hidden">🎉 Thank you for joining! We'll be in touch soon.</p>
                         <p id="errorMessage" class="text-red-500 font-inter hidden">Oops! Something went wrong. Please try again.</p>
                     </div>
                     <p class="mt-4 text-dark/60 text-sm font-inter text-center">
