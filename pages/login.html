@@ -226,8 +226,22 @@
                     
                     const userId = session.user.id;
                     
-                    // Link any existing uploads to the user
-                    await linkUploadsToUser(userId);
+                    // Check for error in URL query parameters (from redirect)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const errorParam = urlParams.get('error');
+                    const errorDescription = urlParams.get('error_description');
+                    
+                    if (errorParam) {
+                        throw new Error(errorDescription || `Authentication error: ${errorParam}`);
+                    }
+                    
+                    // Try to link uploads with error handling
+                    try {
+                        await linkUploadsToUser(userId);
+                    } catch (linkError) {
+                        console.error('Error linking uploads:', linkError);
+                        // Continue with the authentication flow even if linking fails
+                    }
                     
                     // Save user session to localStorage
                     const userProfile = {
@@ -281,7 +295,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin + '/login.html' + window.location.search,
+                            redirectTo: 'https://recibee.github.io/pages/login.html' + window.location.search,
                             queryParams: {
                                 access_type: 'offline',
                                 prompt: 'consent',
@@ -309,7 +323,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'facebook',
                         options: {
-                            redirectTo: window.location.origin + '/login.html' + window.location.search,
+                            redirectTo: 'https://recibee.github.io/pages/login.html' + window.location.search,
                             scopes: 'email,public_profile'
                         }
                     });
@@ -334,7 +348,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'twitter',
                         options: {
-                            redirectTo: window.location.origin + '/login.html' + window.location.search
+                            redirectTo: 'https://recibee.github.io/pages/login.html' + window.location.search
                         }
                     });
                     

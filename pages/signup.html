@@ -240,6 +240,17 @@
             // Create a subscription record for a new user
             async function createSubscription(userId) {
                 try {
+                    // Check if subscriptions table exists and is accessible
+                    const { error: tableCheckError } = await supabaseClient
+                        .from('subscriptions')
+                        .select('count(*)', { count: 'exact', head: true });
+                        
+                    // If there's an error accessing the table, it might not exist yet
+                    if (tableCheckError) {
+                        console.warn('subscriptions table might not exist or is inaccessible:', tableCheckError);
+                        return; // Exit early since we can't create subscription
+                    }
+                    
                     const { data, error } = await supabaseClient.from('subscriptions').insert([
                         {
                             user_id: userId,
@@ -251,17 +262,30 @@
                     
                     if (error) {
                         console.error('Error creating subscription:', error);
+                        throw error;
                     } else {
                         console.log("Subscription created successfully:", data);
                     }
                 } catch (error) {
                     console.error('Error creating subscription:', error);
+                    throw error; // Re-throw for upstream handling
                 }
             }
             
             // Store user social profile data
             async function storeUserSocialProfile(userId, userData) {
                 try {
+                    // Check if user_profiles table exists and is accessible
+                    const { error: tableCheckError } = await supabaseClient
+                        .from('user_profiles')
+                        .select('count(*)', { count: 'exact', head: true });
+                        
+                    // If there's an error accessing the table, it might not exist yet
+                    if (tableCheckError) {
+                        console.warn('user_profiles table might not exist or is inaccessible:', tableCheckError);
+                        return; // Exit early since we can't store the profile
+                    }
+                    
                     // First check if a profile already exists
                     const { data: existingProfile, error: fetchError } = await supabaseClient
                         .from('user_profiles')
@@ -293,6 +317,7 @@
                     console.log("User profile data stored successfully");
                 } catch (error) {
                     console.error('Error storing user profile data:', error);
+                    throw error; // Re-throw for upstream handling
                 }
             }
             
@@ -305,35 +330,71 @@
                     
                     const userId = session.user.id;
                     
-                    // Link any existing uploads to the user
-                    await linkUploadsToUser(userId);
+                    // Check for error in URL query parameters (from redirect)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const errorParam = urlParams.get('error');
+                    const errorDescription = urlParams.get('error_description');
                     
-                    // Check if user already has a subscription
-                    const { data: subscription, error: subError } = await supabaseClient
-                        .from('subscriptions')
-                        .select('id')
-                        .eq('user_id', userId)
-                        .single();
-                    
-                    if (subError && subError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-                        console.error('Error checking subscription:', subError);
+                    if (errorParam) {
+                        throw new Error(errorDescription || `Authentication error: ${errorParam}`);
                     }
                     
-                    // If no subscription exists, create one
-                    if (!subscription) {
-                        await createSubscription(userId);
+                    // Try to link uploads with error handling
+                    try {
+                        await linkUploadsToUser(userId);
+                    } catch (linkError) {
+                        console.error('Error linking uploads:', linkError);
+                        // Continue with the authentication flow even if linking fails
+                    }
+                    
+                    // Check if user already has a subscription
+                    try {
+                        const { data: subscription, error: subError } = await supabaseClient
+                            .from('subscriptions')
+                            .select('id')
+                            .eq('user_id', userId)
+                            .single();
+                        
+                        if (subError && subError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+                            console.error('Error checking subscription:', subError);
+                        }
+                        
+                        // If no subscription exists, create one
+                        if (!subscription) {
+                            await createSubscription(userId);
+                        }
+                    } catch (subscriptionError) {
+                        console.error('Error with subscription:', subscriptionError);
+                        // Continue with the flow
                     }
                     
                     // Store user profile data from social provider
-                    const userData = {
-                        full_name: session.user.user_metadata.full_name || session.user.user_metadata.name,
-                        avatar_url: session.user.user_metadata.avatar_url,
-                        provider: session.user.app_metadata.provider,
+                    try {
+                        const userData = {
+                            full_name: session.user.user_metadata.full_name || session.user.user_metadata.name,
+                            avatar_url: session.user.user_metadata.avatar_url,
+                            provider: session.user.app_metadata.provider,
+                            email: session.user.email,
+                            last_sign_in: new Date().toISOString()
+                        };
+                        
+                        await storeUserSocialProfile(userId, userData);
+                    } catch (profileError) {
+                        console.error('Error storing profile:', profileError);
+                        // Continue with the flow
+                    }
+                    
+                    // Store basic user data in localStorage regardless of database success
+                    const userProfile = {
+                        id: userId,
                         email: session.user.email,
-                        last_sign_in: new Date().toISOString()
+                        name: session.user.user_metadata.full_name || session.user.user_metadata.name || 'User',
+                        provider: session.user.app_metadata.provider,
+                        avatarUrl: session.user.user_metadata.avatar_url,
+                        lastLogin: new Date().toISOString()
                     };
                     
-                    await storeUserSocialProfile(userId, userData);
+                    localStorage.setItem('recibee_user', JSON.stringify(userProfile));
                     
                     // Show success verification message before redirect
                     showVerificationMessage();
@@ -375,7 +436,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin + '/signup.html',
+                            redirectTo: 'https://recibee.github.io/pages/signup.html',
                             queryParams: {
                                 access_type: 'offline',
                                 prompt: 'consent',
@@ -403,7 +464,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'facebook',
                         options: {
-                            redirectTo: window.location.origin + '/signup.html',
+                            redirectTo: 'https://recibee.github.io/pages/signup.html',
                             scopes: 'email,public_profile'
                         }
                     });
@@ -428,7 +489,7 @@
                     const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'twitter',
                         options: {
-                            redirectTo: window.location.origin + '/signup.html'
+                            redirectTo: 'https://recibee.github.io/pages/signup.html'
                         }
                     });
                     
