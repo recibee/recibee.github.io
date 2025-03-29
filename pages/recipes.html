@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>Matched Recipes - Recibee</title>
+    <meta name="title" content="Matched Recipes - Recibee">
+    <meta name="description" content="Browse recipes matched to your ingredients by Recibee's AI-powered detection.">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#ff8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white backdrop-blur-sm bg-opacity-95 shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <a href="/pages/index.html" class="flex items-center">
+                <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="/pages/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
+                <a href="/pages/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <div id="user-info" class="hidden">
+                    <span id="usage-count" class="text-dark mr-3">0/3 Uses</span>
+                    <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
+                </div>
+            </div>
+            <div id="auth-buttons">
+                <a href="/pages/signup.html" class="btn-secondary mr-2">Sign Up</a>
+                <a href="/pages/login.html" class="btn-primary">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <section class="py-12 md:py-16">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="max-w-5xl mx-auto">
+                    <div class="mb-10">
+                        <h1 class="text-3xl md:text-4xl font-bold text-dark mb-4 font-choplin">
+                            Recipes Matched to Your Ingredients
+                        </h1>
+                        <p class="text-dark/70 text-lg">
+                            Based on your ingredients, we found these recipes that you can make. Click on any recipe to view detailed instructions.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 mb-8">
+                        <div class="flex-shrink-0 md:w-1/3 mb-6 md:mb-0">
+                            <div class="bg-white rounded-xl shadow-md p-4 sticky top-20">
+                                <h3 class="text-lg font-semibold mb-3">Detected Ingredients</h3>
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-primary mr-2"></i>
+                                        <span>Tomatoes</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-primary mr-2"></i>
+                                        <span>Onions</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-primary mr-2"></i>
+                                        <span>Bell Peppers</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-primary mr-2"></i>
+                                        <span>Garlic</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check text-primary mr-2"></i>
+                                        <span>Olive Oil</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-dark/10 pt-4">
+                                    <a href="/pages/upload.html" class="flex items-center text-primary hover:text-primary/80 transition-colors font-medium">
+                                        <i class="fas fa-camera mr-2"></i>
+                                        Upload New Image
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-grow md:w-2/3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Recipe Card 1 -->
+                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=1'">
+                                    <div class="image-container">
+                                        <img src="/public/images/pasta.webp" 
+                                             loading="lazy"
+                                             alt="Pasta with tomato sauce">
+                                        <div class="match-badge">95% Match</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="tags-container">
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">6 ingredients</span>
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">25 min</span>
+                                            <span class="tag-pill easy px-3 py-1 rounded-md text-sm">Easy</span>
+                                        </div>
+                                        <h3 class="title">Classic Tomato Pasta</h3>
+                                        <p class="description">A simple and delicious pasta with fresh tomato sauce, garlic, and herbs.</p>
+                                        <div class="author-section">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                                <span class="text-sm text-dark/70">By Emma</span>
+                                            </div>
+                                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save recipe">
+                                                <i class="far fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recipe Card 2 -->
+                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=2'">
+                                    <div class="image-container">
+                                        <img src="/public/images/ratatouille.webp" 
+                                             loading="lazy"
+                                             alt="Ratatouille with vegetables">
+                                        <div class="match-badge">90% Match</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="tags-container">
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">8 ingredients</span>
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">45 min</span>
+                                            <span class="tag-pill medium px-3 py-1 rounded-md text-sm">Medium</span>
+                                        </div>
+                                        <h3 class="title">Homemade Ratatouille</h3>
+                                        <p class="description">A classic French vegetable stew featuring eggplant, zucchini, bell peppers, and tomatoes.</p>
+                                        <div class="author-section">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                                <span class="text-sm text-dark/70">By Robert</span>
+                                            </div>
+                                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save recipe">
+                                                <i class="far fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recipe Card 3 -->
+                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=3'">
+                                    <div class="image-container">
+                                        <img src="/public/images/salsa.webp" 
+                                             loading="lazy"
+                                             alt="Fresh salsa with chips">
+                                        <div class="match-badge">85% Match</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="tags-container">
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">5 ingredients</span>
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">10 min</span>
+                                            <span class="tag-pill easy px-3 py-1 rounded-md text-sm">Easy</span>
+                                        </div>
+                                        <h3 class="title">Fresh Tomato Salsa</h3>
+                                        <p class="description">Quick and fresh salsa made with diced tomatoes, onions, and cilantro. Perfect for dipping.</p>
+                                        <div class="author-section">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://randomuser.me/api/portraits/women/3.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                                <span class="text-sm text-dark/70">By Sofia</span>
+                                            </div>
+                                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save recipe">
+                                                <i class="far fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recipe Card 4 -->
+                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=4'">
+                                    <div class="image-container">
+                                        <img src="/public/images/shakshuka.webp" 
+                                             loading="lazy"
+                                             alt="Shakshuka with eggs">
+                                        <div class="match-badge">80% Match</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="tags-container">
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">7 ingredients</span>
+                                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">30 min</span>
+                                            <span class="tag-pill medium px-3 py-1 rounded-md text-sm">Medium</span>
+                                        </div>
+                                        <h3 class="title">Shakshuka</h3>
+                                        <p class="description">Eggs poached in a sauce of tomatoes, olive oil, peppers, onion, and garlic, commonly spiced with cumin, paprika and cayenne pepper.</p>
+                                        <div class="author-section">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://randomuser.me/api/portraits/men/3.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                                <span class="text-sm text-dark/70">By David</span>
+                                            </div>
+                                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save recipe">
+                                                <i class="far fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-10 text-center">
+                                <p class="text-dark/70 mb-4">Want to see more recipe options?</p>
+                                <a href="/pages/upload.html" class="btn-primary">Try Again with New Image</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const userInfo = document.getElementById('user-info');
+            const authButtons = document.getElementById('auth-buttons');
+            const usageCount = document.getElementById('usage-count');
+            
+            let isLoggedIn = false;
+            let totalUses = 0;
+            
+            // Check if user has saved usage data
+            if (localStorage.getItem('recibee_uses')) {
+                totalUses = parseInt(localStorage.getItem('recibee_uses'));
+            }
+            
+            // Check if user is logged in
+            if (localStorage.getItem('recibee_user')) {
+                isLoggedIn = true;
+                userInfo.classList.remove('hidden');
+                authButtons.classList.add('hidden');
+                
+                // Show usage count for logged in users
+                usageCount.textContent = `${totalUses}/3 Uses`;
+            }
+            
+            // Bookmark functionality
+            const bookmarkButtons = document.querySelectorAll('.author-section button');
+            bookmarkButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent click from triggering recipe card click
+                    
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                });
+            });
+            
+            // Progress bar effect
+            const progressBar = document.getElementById('progress-bar');
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.body.offsetHeight;
+                const winHeight = window.innerHeight;
+                const scrollPercent = scrollTop / (docHeight - winHeight);
+                progressBar.style.width = scrollPercent * 100 + '%';
+            });
+        });
+    </script>
+</body>
+</html> 

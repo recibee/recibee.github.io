@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+    html, body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-family: 'Inter', sans-serif;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #FFFFFF;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+    }
+
+    /* Progress bar styles */
+    #progress-bar {
+        transition: width 0.2s ease-out;
+    }
+}
+
+/* Custom components */
+@layer components {
+    .btn-primary {
+        @apply bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#FF8000];
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary {
+        @apply bg-secondary text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#234C25];
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-success {
+        @apply bg-[#4CAF50] text-white px-6 py-3 rounded-xl font-semibold cursor-default;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tag-pill {
+        @apply bg-cream text-dark rounded-md px-3 py-1 text-sm leading-5;
+    }
+
+    .tag-pill.easy {
+        @apply bg-[#1E4620] text-white;
+    }
+
+    .tag-pill.medium {
+        @apply bg-[#B17900] text-white;
+    }
+
+    /* Modern card styles */
+    .card-base {
+        @apply bg-white rounded-2xl;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(26, 26, 26, 0.1);
+        transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Feature cards */
+    .feature-card {
+        @apply card-base p-6;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (hover: hover) and (min-width: 768px) {
+        .feature-card:hover {
+            @apply -translate-y-1;
+            box-shadow: 0 10px 30px -5px rgba(26, 26, 26, 0.1);
+            border-color: rgba(26, 26, 26, 0.2);
+        }
+    }
+
+    /* Recipe cards */
+    .recipe-card {
+        @apply bg-white rounded-2xl overflow-hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(26, 26, 26, 0.1);
+    }
+
+    .recipe-card .image-container {
+        @apply w-full h-[240px] relative overflow-hidden;
+    }
+
+    .recipe-card .image-container img {
+        @apply w-full h-full object-cover;
+        transition: transform 0.5s ease;
+    }
+
+    .recipe-card .image-container img:hover {
+        @apply scale-105;
+    }
+
+    .recipe-card .content {
+        @apply p-6 flex flex-col min-h-[280px] relative;
+    }
+
+    .recipe-card .tags-container {
+        @apply flex flex-wrap gap-2 mb-4;
+    }
+
+    .recipe-card .title {
+        @apply text-xl font-bold text-dark mb-2;
+    }
+
+    .recipe-card .description {
+        @apply text-dark/70 mb-8;
+    }
+
+    .recipe-card .author-section {
+        @apply flex items-center justify-between absolute bottom-6 left-6 right-6 pt-4 border-t border-dark/10;
+    }
+
+    /* Testimonial cards */
+    .testimonial-card {
+        @apply card-base p-8;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (hover: hover) and (min-width: 768px) {
+        .testimonial-card:hover {
+            @apply -translate-y-1;
+            box-shadow: 0 10px 30px -5px rgba(26, 26, 26, 0.1);
+            border-color: rgba(26, 26, 26, 0.2);
+        }
+    }
+
+    /* How It Works cards */
+    .step-card {
+        @apply card-base p-8;
+        min-height: 250px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .step-card > div:first-child {
+        margin-bottom: auto;
+    }
+
+    /* Waitlist form card */
+    .waitlist-card {
+        @apply card-base p-8;
+        transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (hover: hover) and (min-width: 768px) {
+        .waitlist-card:hover {
+            border-color: rgba(26, 26, 26, 0.2);
+        }
+    }
+
+    /* Notification cards */
+    .notification-card {
+        @apply card-base p-4 bg-white shadow-sm;
+        position: relative;
+        z-index: 20;
+        transition: all 0.3s ease;
+    }
+
+    .notification-card:hover {
+        transform: translateY(-5px);
+        @apply shadow-lg;
+    }
+
+    /* Popup Styles */
+    #successPopup, #popupContent {
+        display: none;
+    }
+}
+
+/* Custom animations */
+@layer utilities {
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .animate-hero-text {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: heroTextFadeIn 0.8s ease forwards;
+    }
+
+    .text-primary {
+        color: #FF9500;
+    }
+
+    .delay-200 {
+        animation-delay: 200ms;
+    }
+
+    .delay-400 {
+        animation-delay: 400ms;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes heroTextFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+} 

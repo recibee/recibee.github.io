@@ -1,0 +1,23 @@
+# Redirect from root to pages/index.html
+RewriteEngine On
+RewriteRule ^$ /pages/index.html [L,R=301]
+
+# Redirect old URLs to new structure
+RewriteRule ^login.html$ /pages/login.html [L,R=301]
+RewriteRule ^signup.html$ /pages/signup.html [L,R=301]
+RewriteRule ^upload.html$ /pages/upload.html [L,R=301]
+RewriteRule ^account.html$ /pages/account.html [L,R=301]
+RewriteRule ^recipes.html$ /pages/recipes.html [L,R=301]
+RewriteRule ^recipe-details.html$ /pages/recipe-details.html [L,R=301]
+RewriteRule ^privacy-policy.html$ /pages/privacy-policy.html [L,R=301]
+RewriteRule ^terms-of-service.html$ /pages/terms-of-service.html [L,R=301]
+RewriteRule ^cookie-policy.html$ /pages/cookie-policy.html [L,R=301]
+RewriteRule ^404.html$ /pages/404.html [L,R=301]
+RewriteRule ^auth-test.html$ /pages/auth-test.html [L,R=301]
+
+# Redirect non-file URLs to their HTML counterparts
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^privacy-policy$ /pages/privacy-policy.html [L,R=301]
+RewriteRule ^terms-of-service$ /pages/terms-of-service.html [L,R=301]
+RewriteRule ^cookie-policy$ /pages/cookie-policy.html [L,R=301] 
