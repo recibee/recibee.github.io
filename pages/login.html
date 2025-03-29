@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>Login - Recibee</title>
+    <meta name="title" content="Login - Recibee">
+    <meta name="description" content="Log in to your Recibee account to access your saved recipes and more">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FF8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Recibee Auth Module -->
+    <script src="/assets/js/auth.js" defer></script>
+    
+    <style>
+        /* Additional mobile fixes */
+        @media (max-width: 640px) {
+            .social-btn-text {
+                font-size: 0.875rem;
+            }
+            
+            .social-icon {
+                min-width: 20px;
+            }
+            
+            .recover-password-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Fix button hover states on mobile */
+        @media (hover: none) {
+            .hover\:bg-gray-50:hover {
+                background-color: transparent !important;
+            }
+        }
+        
+        /* Improve focus states for accessibility */
+        button:focus, a:focus, input:focus {
+            outline: 2px solid #FF8000;
+            outline-offset: 2px;
+        }
+        
+        /* Smoother transitions */
+        .btn-primary, .btn-secondary, input {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-cream min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="inline-flex items-center">
+                    <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                    <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+                </a>
+            </div>
+            <div class="flex items-center">
+                <a href="/pages/signup.html" class="text-dark hover:text-primary transition-colors px-4 py-2 rounded-lg">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-8 md:py-16 px-4 md:px-6">
+        <div class="w-full max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl md:text-3xl font-bold text-dark mb-2 font-choplin">
+                        Welcome Back
+                    </h1>
+                    <p class="text-dark/70">
+                        Log in to continue your culinary journey
+                    </p>
+                </div>
+                
+                <div id="login-form" class="space-y-5">
+                    <div id="error-message" class="text-red-500 text-sm hidden">
+                        <!-- Error messages will appear here -->
+                    </div>
+                    
+                    <div>
+                        <button id="google-signin" class="w-full py-3 border border-dark/20 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="social-icon">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            <span class="text-dark font-medium social-btn-text">Continue with Google</span>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <button id="facebook-signin" class="w-full py-3 border border-dark/20 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="social-icon">
+                                <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span class="text-dark font-medium social-btn-text">Continue with Facebook</span>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <button id="x-signin" class="w-full py-3 border border-dark/20 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="social-icon">
+                                <path fill="#000000" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+                            </svg>
+                            <span class="text-dark font-medium social-btn-text">Continue with X</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="verification-message" class="hidden text-center py-6">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-5xl text-green-500"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-dark mb-2">Logged In Successfully!</h2>
+                    <p class="text-dark/70 mb-4">You have been successfully logged in.</p>
+                    <a href="/pages/account.html" class="btn-primary py-2 px-4">Go to Your Account</a>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <p class="text-dark/70">Don't have an account? <a href="/pages/signup.html" class="text-primary hover:underline">Sign up</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://pombxhsrmvrtzkaodmni.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWJ4aHNybXZydHprYW9kbW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxODU5OTAsImV4cCI6MjA1ODc2MTk5MH0.vGl9mYqJwmz8htQHhiMDzVymZAgBHOJwBPH5IiJx2g4';
+        // Use the global supabase from window if available, otherwise create a new client
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : { auth: { signInWithOAuth: () => console.error('Supabase not loaded') } };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const googleSignin = document.getElementById('google-signin');
+            const facebookSignin = document.getElementById('facebook-signin');
+            const xSignin = document.getElementById('x-signin');
+            const errorMessage = document.getElementById('error-message');
+            const progressBar = document.getElementById('progress-bar');
+            
+            // Generate or retrieve a session ID for tracking uploads
+            function getSessionId() {
+                let sessionId = localStorage.getItem('recibee_session_id');
+                if (!sessionId) {
+                    sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('recibee_session_id', sessionId);
+                }
+                return sessionId;
+            }
+            
+            // Make sure we have a session ID
+            const sessionId = getSessionId();
+            
+            // Show error message
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+                errorMessage.classList.remove('text-green-500');
+                errorMessage.classList.add('text-red-500');
+            }
+            
+            // Show success message
+            function showSuccess(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+                errorMessage.classList.remove('text-red-500');
+                errorMessage.classList.add('text-green-500');
+            }
+            
+            // Hide error message
+            function hideError() {
+                errorMessage.classList.add('hidden');
+                errorMessage.textContent = '';
+            }
+            
+            // Link existing uploads to the user
+            async function linkUploadsToUser(userId) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('uploads')
+                        .update({ user_id: userId })
+                        .eq('session_id', sessionId);
+                        
+                    if (error) throw error;
+                    console.log('Linked uploads to user:', userId);
+                } catch (error) {
+                    console.error('Error linking uploads:', error);
+                }
+            }
+            
+            // Handle social sign in completion
+            async function handleSocialSignInComplete(session) {
+                try {
+                    if (!session || !session.user) {
+                        throw new Error('No session or user data received');
+                    }
+                    
+                    const userId = session.user.id;
+                    
+                    // Link any existing uploads to the user
+                    await linkUploadsToUser(userId);
+                    
+                    // Save user session to localStorage
+                    const userProfile = {
+                        id: userId,
+                        email: session.user.email,
+                        name: session.user.user_metadata.full_name || session.user.user_metadata.name || 'User',
+                        provider: session.user.app_metadata.provider,
+                        avatarUrl: session.user.user_metadata.avatar_url,
+                        lastLogin: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('recibee_user', JSON.stringify(userProfile));
+                    
+                    // Redirect to the intended page or account page
+                    const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+                    if (returnUrl) {
+                        window.location.href = returnUrl;
+                    } else {
+                        window.location.href = 'account.html';
+                    }
+                } catch (error) {
+                    console.error('Error handling social sign in completion:', error);
+                    showError(error.message || 'Failed to complete sign in. Please try again.');
+                }
+            }
+            
+            // Check for OAuth redirect on page load
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                console.log('Auth state changed:', event, session);
+                
+                if (event === 'SIGNED_IN' && session) {
+                    await handleSocialSignInComplete(session);
+                }
+            });
+            
+            // Handle initial session on page load
+            (async function() {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (!error && session) {
+                    await handleSocialSignInComplete(session);
+                }
+            })();
+            
+            // Handle Google sign in
+            googleSignin.addEventListener('click', async function(e) {
+                e.preventDefault();
+                hideError();
+                
+                try {
+                    // Authenticate with Google
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin + '/login.html' + window.location.search,
+                            queryParams: {
+                                access_type: 'offline',
+                                prompt: 'consent',
+                            }
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // The redirect will happen automatically
+                    console.log('Redirecting to Google auth...', data);
+                } catch (error) {
+                    console.error('Google signin error:', error);
+                    showError(error.message || 'Failed to sign in with Google. Please try again.');
+                }
+            });
+            
+            // Handle Facebook sign in
+            facebookSignin.addEventListener('click', async function(e) {
+                e.preventDefault();
+                hideError();
+                
+                try {
+                    // Authenticate with Facebook
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                        provider: 'facebook',
+                        options: {
+                            redirectTo: window.location.origin + '/login.html' + window.location.search,
+                            scopes: 'email,public_profile'
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // The redirect will happen automatically
+                    console.log('Redirecting to Facebook auth...', data);
+                } catch (error) {
+                    console.error('Facebook signin error:', error);
+                    showError(error.message || 'Failed to sign in with Facebook. Please try again.');
+                }
+            });
+            
+            // Handle X (Twitter) sign in
+            xSignin.addEventListener('click', async function(e) {
+                e.preventDefault();
+                hideError();
+                
+                try {
+                    // Authenticate with Twitter/X
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                        provider: 'twitter',
+                        options: {
+                            redirectTo: window.location.origin + '/login.html' + window.location.search
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // The redirect will happen automatically
+                    console.log('Redirecting to Twitter/X auth...', data);
+                } catch (error) {
+                    console.error('Twitter/X signin error:', error);
+                    showError(error.message || 'Failed to sign in with X. Please try again.');
+                }
+            });
+            
+            // Progress bar effect
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.body.offsetHeight;
+                const winHeight = window.innerHeight;
+                const scrollPercent = scrollTop / (docHeight - winHeight);
+                progressBar.style.width = scrollPercent * 100 + '%';
+            });
+        });
+    </script>
+    
+    <footer class="bg-dark py-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                    <span class="text-white/70">|</span>
+                    <a href="#" class="text-white/70 text-sm mx-2 hover:text-white">Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

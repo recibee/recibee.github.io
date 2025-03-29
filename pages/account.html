@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>My Account - Recibee</title>
+    <meta name="title" content="My Account - Recibee">
+    <meta name="description" content="Manage your Recibee account, subscription, and saved recipes">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#ff8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white backdrop-blur-sm bg-opacity-95 shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <a href="/pages/index.html" class="flex items-center">
+                <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="/pages/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
+                <a href="/pages/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <a href="/pages/upload.html" class="text-dark hover:text-primary transition-colors font-medium">Upload Ingredients</a>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="usage-count" class="text-dark mr-2 hidden">0/3 Uses</span>
+                <button id="logout-button" class="text-dark hover:text-primary transition-colors">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <section class="py-8 md:py-16">
+            <div class="container mx-auto px-4 md:px-6">
+                <!-- Payment Success Message (conditionally shown) -->
+                <div id="payment-success" class="max-w-3xl mx-auto mb-6 bg-green-100 border border-green-200 text-green-800 rounded-lg p-4 hidden">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+                        <div>
+                            <h3 class="font-semibold">Payment Successful!</h3>
+                            <p>Your Pro subscription is now active. Enjoy unlimited recipe searches and premium features.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
+                        <h1 class="text-2xl md:text-3xl font-bold text-dark font-choplin">
+                            My Account
+                        </h1>
+                        <a href="/pages/upload.html" class="btn-primary whitespace-nowrap">
+                            <i class="fas fa-camera mr-2"></i> New Upload
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <!-- Left Column: Account Info -->
+                        <div class="md:col-span-1">
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-user text-primary text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-semibold text-dark" id="user-name">User Name</h2>
+                                        <p class="text-dark/70 text-sm" id="user-email">user@example.com</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-dark/10 pt-4 mt-4">
+                                    <h3 class="font-semibold mb-3">Account Details</h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-center justify-between">
+                                            <span class="text-dark/70">Member since</span>
+                                            <span class="text-dark" id="join-date">May 2023</span>
+                                        </li>
+                                        <li class="flex items-center justify-between">
+                                            <span class="text-dark/70">Subscription</span>
+                                            <span class="text-dark" id="subscription-type">Free Plan</span>
+                                        </li>
+                                        <li id="remaining-uses-item" class="flex items-center justify-between">
+                                            <span class="text-dark/70">Remaining uses</span>
+                                            <span class="text-dark" id="remaining-uses">3/3</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div id="free-user-cta" class="mt-6 hidden">
+                                    <a href="#upgrade" class="w-full btn-primary block text-center">
+                                        Upgrade to Pro
+                                    </a>
+                                    <p class="text-dark/60 text-sm text-center mt-2">Get unlimited uses for $12/month</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column: Activity & Saved Recipes -->
+                        <div class="md:col-span-2">
+                            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                                <h2 class="text-xl font-semibold text-dark mb-4">Recent Activity</h2>
+                                
+                                <div id="no-activity" class="text-center py-6 md:py-8 text-dark/60">
+                                    <i class="fas fa-history text-dark/30 text-4xl mb-3"></i>
+                                    <p>No activity yet</p>
+                                    <p class="text-sm mt-1">Your recent recipe searches will appear here</p>
+                                </div>
+                                
+                                <div id="activity-list" class="space-y-4 hidden">
+                                    <!-- Activity items will be populated dynamically -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h2 class="text-xl font-semibold text-dark">Saved Recipes</h2>
+                                    <a href="#" class="text-primary hover:underline text-sm">View all</a>
+                                </div>
+                                
+                                <div id="no-saved-recipes" class="text-center py-6 md:py-8 text-dark/60">
+                                    <i class="fas fa-bookmark text-dark/30 text-4xl mb-3"></i>
+                                    <p>No saved recipes yet</p>
+                                    <p class="text-sm mt-1">Recipes you bookmark will appear here</p>
+                                </div>
+                                
+                                <div id="saved-recipes-list" class="space-y-4 hidden">
+                                    <!-- Saved recipes will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upgrade Section -->
+                    <div id="upgrade" class="mt-10 md:mt-12 bg-white rounded-xl shadow-md p-6 md:p-8">
+                        <div class="text-center mb-6 md:mb-8">
+                            <h2 class="text-2xl md:text-3xl font-bold text-dark mb-3 font-choplin">
+                                Upgrade to Recibee Pro
+                            </h2>
+                            <p class="text-dark/70 max-w-2xl mx-auto">
+                                Unlock unlimited recipe searches and premium features with our Pro subscription
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Free Plan -->
+                            <div class="border-2 border-dark/10 rounded-xl p-6">
+                                <div class="text-center mb-6">
+                                    <h3 class="text-xl font-bold text-dark mb-2">Free Plan</h3>
+                                    <div class="flex justify-center items-baseline">
+                                        <span class="text-4xl font-bold text-dark">$0</span>
+                                        <span class="text-dark/70 ml-1">/month</span>
+                                    </div>
+                                </div>
+                                
+                                <ul class="space-y-3 mb-6">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Up to 3 recipe searches</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Basic recipe recommendations</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Save up to 10 recipes</span>
+                                    </li>
+                                    <li class="flex items-start text-dark/40">
+                                        <i class="fas fa-times mt-1 mr-2"></i>
+                                        <span>No recipe filtering options</span>
+                                    </li>
+                                    <li class="flex items-start text-dark/40">
+                                        <i class="fas fa-times mt-1 mr-2"></i>
+                                        <span>No nutrition information</span>
+                                    </li>
+                                </ul>
+                                
+                                <div class="text-center">
+                                    <span class="btn-secondary inline-block w-full">Current Plan</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Pro Plan -->
+                            <div class="border-2 border-primary rounded-xl p-6 relative">
+                                <div class="absolute top-0 right-0 bg-primary text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-semibold">
+                                    POPULAR
+                                </div>
+                                
+                                <div class="text-center mb-6">
+                                    <h3 class="text-xl font-bold text-dark mb-2">Pro Plan</h3>
+                                    <div class="flex justify-center items-baseline">
+                                        <span class="text-4xl font-bold text-dark">$12</span>
+                                        <span class="text-dark/70 ml-1">/month</span>
+                                    </div>
+                                </div>
+                                
+                                <ul class="space-y-3 mb-6">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Unlimited recipe searches</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Advanced AI recipe matching</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Unlimited recipe saves</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Advanced filtering options</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-primary mt-1 mr-2"></i>
+                                        <span>Detailed nutrition information</span>
+                                    </li>
+                                </ul>
+                                
+                                <div class="text-center">
+                                    <button id="upgrade-button" class="btn-primary inline-block w-full">
+                                        Upgrade Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const userData = JSON.parse(localStorage.getItem('recibee_user'));
+            if (!userData) {
+                // Redirect to login if not logged in
+                window.location.href = 'login.html?returnUrl=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            
+            // Set user info
+            document.getElementById('user-name').textContent = userData.name;
+            document.getElementById('user-email').textContent = userData.email;
+            
+            // Set join date (would be pulled from server in real app)
+            const today = new Date();
+            document.getElementById('join-date').textContent = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Set subscription type
+            const subscriptionType = userData.plan === 'pro' ? 'Pro Plan' : 'Free Plan';
+            document.getElementById('subscription-type').textContent = subscriptionType;
+            
+            // Handle usage count
+            const usageCount = document.getElementById('usage-count');
+            let totalUses = 0;
+            
+            if (localStorage.getItem('recibee_uses')) {
+                totalUses = parseInt(localStorage.getItem('recibee_uses'));
+            }
+            
+            usageCount.textContent = `${totalUses}/3 Uses`;
+            usageCount.classList.remove('hidden');
+            
+            // Show remaining uses for free users
+            if (userData.plan === 'free') {
+                document.getElementById('remaining-uses').textContent = `${3 - totalUses}/3`;
+                document.getElementById('free-user-cta').classList.remove('hidden');
+            } else {
+                // Hide remaining uses for pro users
+                document.getElementById('remaining-uses-item').classList.add('hidden');
+            }
+            
+            // Check if user is coming from payment page
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('payment') === 'success') {
+                document.getElementById('payment-success').classList.remove('hidden');
+                // Update user to pro
+                userData.plan = 'pro';
+                localStorage.setItem('recibee_user', JSON.stringify(userData));
+                // Hide subscription type
+                document.getElementById('remaining-uses-item').classList.add('hidden');
+                document.getElementById('subscription-type').textContent = 'Pro Plan';
+                document.getElementById('free-user-cta').classList.add('hidden');
+            }
+            
+            // Handle logout
+            document.getElementById('logout-button').addEventListener('click', function() {
+                localStorage.removeItem('recibee_user');
+                window.location.href = 'index.html';
+            });
+            
+            // Handle upgrade button
+            document.getElementById('upgrade-button').addEventListener('click', function() {
+                // In a real app, this would redirect to a payment page
+                // For demo purposes, simulate a successful payment
+                userData.plan = 'pro';
+                localStorage.setItem('recibee_user', JSON.stringify(userData));
+                window.location.href = 'account.html?payment=success';
+            });
+            
+            // Progress bar effect
+            const progressBar = document.getElementById('progress-bar');
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.body.offsetHeight;
+                const winHeight = window.innerHeight;
+                const scrollPercent = scrollTop / (docHeight - winHeight);
+                progressBar.style.width = scrollPercent * 100 + '%';
+            });
+        });
+    </script>
+</body>
+</html> 

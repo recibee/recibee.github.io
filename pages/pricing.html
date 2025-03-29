@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>Pricing Plans - Recibee</title>
+    <meta name="title" content="Pricing Plans - Recibee">
+    <meta name="description" content="Choose the perfect Recibee plan for your cooking needs. From Free to Premium Plus, find the right features for you.">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FF8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Additional styles for pricing page */
+        .pricing-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pricing-card.popular {
+            border: 2px solid #FF8000;
+            transform: scale(1.02);
+        }
+        
+        .pricing-card.popular:hover {
+            transform: scale(1.02) translateY(-5px);
+        }
+        
+        .feature-list li {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .feature-list i {
+            margin-right: 0.5rem;
+            margin-top: 0.25rem;
+        }
+        
+        .compare-table {
+            overflow-x: auto;
+        }
+        
+        .compare-table table {
+            min-width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .compare-table th, .compare-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .compare-table th:first-child, .compare-table td:first-child {
+            text-align: left;
+        }
+        
+        .compare-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .pricing-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .pricing-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #FF8000;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.popular {
+                transform: scale(1);
+                order: -1;
+            }
+            
+            .pricing-card.popular:hover {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-cream min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="inline-flex items-center">
+                    <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                    <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="/pages/index.html#features" class="text-dark hover:text-primary transition-colors">Features</a>
+                <a href="/pages/pricing.html" class="text-primary font-medium">Pricing</a>
+                <a href="/pages/index.html#testimonials" class="text-dark hover:text-primary transition-colors">Testimonials</a>
+            </div>
+            <div class="flex items-center">
+                <a href="/pages/signup.html" class="text-dark hover:text-primary transition-colors px-4 py-2 rounded-lg mr-2">Sign Up</a>
+                <a href="/pages/login.html" class="btn-primary">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <section class="py-16 md:py-24">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4 font-choplin">
+                        Choose Your Perfect Plan
+                    </h1>
+                    <p class="text-dark/70 text-lg mb-8">
+                        Find the ideal Recibee plan that fits your cooking style and budget
+                    </p>
+                    
+                    <div class="flex items-center justify-center mb-8">
+                        <span class="mr-3 font-medium">Monthly</span>
+                        <label class="pricing-toggle">
+                            <input type="checkbox" id="billing-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="ml-3 font-medium">Yearly <span class="text-primary text-sm font-semibold">Save 20%</span></span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 pricing-grid max-w-6xl mx-auto">
+                    <!-- Free Plan -->
+                    <div class="pricing-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
+                        <div class="p-6 md:p-8 flex-grow">
+                            <h3 class="text-xl font-bold mb-2">Free</h3>
+                            <div class="mb-6">
+                                <span class="text-3xl font-bold">$0</span>
+                                <span class="text-dark/60">/month</span>
+                            </div>
+                            
+                            <p class="text-dark/70 mb-6">Perfect for casual cooks who want to explore recipe ideas</p>
+                            
+                            <ul class="feature-list space-y-2 mb-8">
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>3 ingredient scans per month</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Basic recipe suggestions</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Access to community recipes</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times text-red-500"></i>
+                                    <span class="text-dark/50">AI-powered meal planning</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times text-red-500"></i>
+                                    <span class="text-dark/50">Premium recipe database</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times text-red-500"></i>
+                                    <span class="text-dark/50">Nutrition tracking</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-6 md:p-8 bg-gray-50">
+                            <a href="/pages/signup.html" class="btn-secondary w-full text-center">Get Started</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Plan -->
+                    <div class="pricing-card popular bg-white rounded-xl shadow-lg overflow-hidden flex flex-col relative">
+                        <div class="absolute top-0 right-0">
+                            <div class="bg-primary text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
+                                Most Popular
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 md:p-8 flex-grow">
+                            <h3 class="text-xl font-bold mb-2">Premium</h3>
+                            <div class="mb-6">
+                                <span class="text-3xl font-bold pricing-amount">$9.99</span>
+                                <span class="text-dark/60 billing-period">/month</span>
+                            </div>
+                            
+                            <p class="text-dark/70 mb-6">Ideal for food enthusiasts who cook regularly</p>
+                            
+                            <ul class="feature-list space-y-2 mb-8">
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Unlimited ingredient scans</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Advanced recipe suggestions</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Access to premium recipes</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>AI-powered meal planning</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Nutritional information</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times text-red-500"></i>
+                                    <span class="text-dark/50">Chef consultation</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-6 md:p-8 bg-primary/5">
+                            <a href="/pages/signup.html?plan=premium" class="btn-primary w-full text-center">Choose Plan</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Plus Plan -->
+                    <div class="pricing-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
+                        <div class="p-6 md:p-8 flex-grow">
+                            <h3 class="text-xl font-bold mb-2">Premium Plus</h3>
+                            <div class="mb-6">
+                                <span class="text-3xl font-bold pricing-amount">$19.99</span>
+                                <span class="text-dark/60 billing-period">/month</span>
+                            </div>
+                            
+                            <p class="text-dark/70 mb-6">The ultimate package for culinary enthusiasts and professionals</p>
+                            
+                            <ul class="feature-list space-y-2 mb-8">
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Everything in Premium</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Get access to our Recibee app premium features</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Advanced nutrition tracking</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Priority customer support</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-green-500"></i>
+                                    <span>Early access to new features</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-6 md:p-8 bg-gray-50">
+                            <a href="/pages/signup.html?plan=premium-plus" class="btn-secondary w-full text-center">Choose Plan</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-20 max-w-5xl mx-auto">
+                    <h2 class="text-2xl md:text-3xl font-bold text-dark mb-8 text-center font-choplin">Compare All Features</h2>
+                    
+                    <div class="compare-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Free</th>
+                                    <th>Premium</th>
+                                    <th>Premium Plus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ingredient Scans</td>
+                                    <td>3 per month</td>
+                                    <td>Unlimited</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td>Recipe Suggestions</td>
+                                    <td>Basic</td>
+                                    <td>Advanced</td>
+                                    <td>Advanced + Gourmet</td>
+                                </tr>
+                                <tr>
+                                    <td>Recipe Library</td>
+                                    <td>Community Only</td>
+                                    <td>Premium Access</td>
+                                    <td>All Access + Exclusive</td>
+                                </tr>
+                                <tr>
+                                    <td>Meal Planning</td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td><i class="fas fa-check text-green-500"></i></td>
+                                    <td><i class="fas fa-check text-green-500"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>Shopping Lists</td>
+                                    <td>Basic</td>
+                                    <td>Advanced</td>
+                                    <td>Smart Lists</td>
+                                </tr>
+                                <tr>
+                                    <td>Nutritional Information</td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td>Basic</td>
+                                    <td>Advanced</td>
+                                </tr>
+                                <tr>
+                                    <td>Chef Consultation</td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td>Monthly</td>
+                                </tr>
+                                <tr>
+                                    <td>Customer Support</td>
+                                    <td>Email</td>
+                                    <td>Email + Chat</td>
+                                    <td>Priority Support</td>
+                                </tr>
+                                <tr>
+                                    <td>Early Access to Features</td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td><i class="fas fa-times text-red-500"></i></td>
+                                    <td><i class="fas fa-check text-green-500"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-20 max-w-3xl mx-auto text-center bg-primary/10 rounded-xl p-8 md:p-10">
+                    <h2 class="text-2xl md:text-3xl font-bold text-dark mb-4 font-choplin">Frequently Asked Questions</h2>
+                    
+                    <div class="mt-8 text-left">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Can I switch between plans?</h3>
+                            <p class="text-dark/70">Yes, you can upgrade, downgrade, or cancel your subscription at any time. Changes will take effect at the start of your next billing cycle.</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Do you offer a refund policy?</h3>
+                            <p class="text-dark/70">We offer a 14-day money-back guarantee if you're not satisfied with your Premium or Premium Plus subscription.</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">How are ingredient scans counted?</h3>
+                            <p class="text-dark/70">Each time you upload a photo and analyze ingredients, it counts as one scan. For free users, these reset at the beginning of each month.</p>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Is there a family or group plan available?</h3>
+                            <p class="text-dark/70">We're currently developing family plans. For now, each subscription is for a single user. Contact us for business or group inquiries.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-16 text-center">
+                    <h2 class="text-2xl font-bold mb-4">Still have questions?</h2>
+                    <p class="text-dark/70 mb-6">Our team is here to help with any questions about our plans</p>
+                    <a href="/pages/contact.html" class="btn-primary px-6 py-3">Contact Support</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark py-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                    <span class="text-white/70">|</span>
+                    <a href="#" class="text-white/70 text-sm mx-2 hover:text-white">Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle between monthly and yearly pricing
+        const billingToggle = document.getElementById('billing-toggle');
+        const pricingAmounts = document.querySelectorAll('.pricing-amount');
+        const billingPeriods = document.querySelectorAll('.billing-period');
+        
+        const monthlyPrices = ['$0', '$9.99', '$19.99'];
+        const yearlyPrices = ['$0', '$95.88', '$191.88'];
+        
+        billingToggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Yearly pricing
+                pricingAmounts[1].textContent = yearlyPrices[1];
+                pricingAmounts[2].textContent = yearlyPrices[2];
+                billingPeriods.forEach(period => {
+                    period.textContent = '/year';
+                });
+            } else {
+                // Monthly pricing
+                pricingAmounts[1].textContent = monthlyPrices[1];
+                pricingAmounts[2].textContent = monthlyPrices[2];
+                billingPeriods.forEach(period => {
+                    period.textContent = '/month';
+                });
+            }
+        });
+        
+        // Progress bar effect
+        const progressBar = document.getElementById('progress-bar');
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.body.offsetHeight;
+            const winHeight = window.innerHeight;
+            const scrollPercent = scrollTop / (docHeight - winHeight);
+            progressBar.style.width = scrollPercent * 100 + '%';
+        });
+    </script>
+</body>
+</html> 
