@@ -1,6 +1,6 @@
 # Redirect from root to pages/index.html
 RewriteEngine On
-RewriteRule ^$ /pages/index.html [L,R=301]
+RewriteRule ^$ /index.html [L,R=301]
 
 # Redirect old URLs to new structure
 RewriteRule ^login.html$ /pages/login.html [L,R=301]

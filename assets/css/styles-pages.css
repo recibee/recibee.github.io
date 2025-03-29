@@ -218,4 +218,38 @@ input:focus, textarea:focus {
 /* Progress bar animation */
 #progress-bar {
     transition: width 0.3s ease;
+}
+
+/* Camera view styles */
+.camera-view {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    background-color: #1A1A1A !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 1rem !important;
+    overflow: hidden !important;
+}
+
+.camera-container {
+    position: relative !important;
+    width: 100% !important;
+    flex-grow: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: black !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    margin-bottom: 1rem !important;
+}
+
+.camera-video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
 } 
