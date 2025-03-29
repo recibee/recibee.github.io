@@ -296,6 +296,75 @@
                 }
             }
             
+            // Function to manually save user profile to Supabase
+            async function saveUserProfileToSupabase(user) {
+                if (!user || !user.id) {
+                    console.error('Cannot save profile: No valid user provided');
+                    return;
+                }
+                
+                try {
+                    console.log('Manually saving user profile for:', user.id);
+                    
+                    // Prepare user data
+                    const userData = {
+                        user_id: user.id,
+                        full_name: user.user_metadata?.full_name || 
+                                  user.user_metadata?.name || 
+                                  'User',
+                        avatar_url: user.user_metadata?.avatar_url || 
+                                    user.user_metadata?.picture,
+                        provider: user.app_metadata?.provider || 'email',
+                        email: user.email,
+                        last_sign_in: new Date().toISOString(),
+                        provider_metadata: user.user_metadata
+                    };
+                    
+                    console.log('User profile data:', JSON.stringify(userData));
+                    
+                    // Check if profile already exists
+                    const { data: existingProfile, error: fetchError } = await supabaseClient
+                        .from('user_profiles')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .single();
+                        
+                    if (fetchError && fetchError.code !== 'PGRST116') {
+                        console.error('Error checking for existing profile:', fetchError);
+                    }
+                    
+                    if (existingProfile) {
+                        // Update existing profile
+                        console.log('Updating existing profile');
+                        const { error: updateError } = await supabaseClient
+                            .from('user_profiles')
+                            .update(userData)
+                            .eq('user_id', user.id);
+                            
+                        if (updateError) {
+                            console.error('Error updating profile:', updateError);
+                            throw updateError;
+                        }
+                        console.log('User profile updated successfully');
+                    } else {
+                        // Create new profile
+                        console.log('Creating new profile');
+                        const { error: insertError } = await supabaseClient
+                            .from('user_profiles')
+                            .insert([userData]);
+                            
+                        if (insertError) {
+                            console.error('Error creating profile:', insertError);
+                            throw insertError;
+                        }
+                        console.log('User profile created successfully');
+                    }
+                } catch (error) {
+                    console.error('Error in saveUserProfileToSupabase:', error);
+                    throw error;
+                }
+            }
+            
             // Handle social sign in completion
             async function handleSocialSignInComplete(session) {
                 try {
@@ -304,47 +373,126 @@
                     }
                     
                     const userId = session.user.id;
+                    console.log('Social sign-in complete for user:', userId);
                     
-                    // Link any existing uploads to the user
-                    await linkUploadsToUser(userId);
+                    // Check for error in URL query parameters AND hash fragment (from redirect)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const hashParams = new URLSearchParams(window.location.hash.substring(1));
                     
-                    // Check if user already has a subscription
-                    const { data: subscription, error: subError } = await supabaseClient
-                        .from('subscriptions')
-                        .select('id')
-                        .eq('user_id', userId)
-                        .single();
+                    const errorParam = urlParams.get('error') || hashParams.get('error');
+                    const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
                     
-                    if (subError && subError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-                        console.error('Error checking subscription:', subError);
+                    // If there's an error but we have a valid session, we'll show the error but still proceed
+                    if (errorParam) {
+                        console.error(`Authentication warning: ${errorParam} - ${errorDescription}`);
+                        showError(errorDescription || `Authentication warning: ${errorParam}`);
+                        
+                        // Clear the error parameters from URL without refreshing page
+                        const cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                        
+                        // But we'll still proceed with the rest of the function since we have a valid session
                     }
                     
-                    // If no subscription exists, create one
-                    if (!subscription) {
-                        await createSubscription(userId);
+                    // Try to link uploads with error handling
+                    try {
+                        await linkUploadsToUser(userId);
+                    } catch (linkError) {
+                        console.error('Error linking uploads:', linkError);
+                        // Continue with the authentication flow even if linking fails
+                    }
+                    
+                    // Check if user already has a subscription
+                    let subscriptionSuccess = false;
+                    try {
+                        const { data: subscription, error: subError } = await supabaseClient
+                            .from('subscriptions')
+                            .select('id')
+                            .eq('user_id', userId)
+                            .single();
+                        
+                        if (subError && subError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+                            console.error('Error checking subscription:', subError);
+                        } else if (!subscription) {
+                            await createSubscription(userId);
+                        }
+                        subscriptionSuccess = true;
+                    } catch (subscriptionError) {
+                        console.error('Error with subscription:', subscriptionError);
+                        // Continue with the flow
+                    }
+                    
+                    // Explicitly save user profile to Supabase
+                    try {
+                        console.log('Manually saving user profile to Supabase');
+                        await saveUserProfileToSupabase(session.user);
+                    } catch (profileError) {
+                        console.error('Error manually saving user profile:', profileError);
+                        // Continue with the flow even if profile saving fails
                     }
                     
                     // Store user profile data from social provider
-                    const userData = {
-                        full_name: session.user.user_metadata.full_name || session.user.user_metadata.name,
-                        avatar_url: session.user.user_metadata.avatar_url,
-                        provider: session.user.app_metadata.provider,
+                    try {
+                        const userData = {
+                            full_name: session.user.user_metadata.full_name || session.user.user_metadata.name,
+                            avatar_url: session.user.user_metadata.avatar_url || session.user.user_metadata.picture,
+                            provider: session.user.app_metadata.provider,
+                            email: session.user.email,
+                            last_sign_in: new Date().toISOString()
+                        };
+                        
+                        await storeUserSocialProfile(userId, userData);
+                    } catch (profileError) {
+                        console.error('Error storing profile:', profileError);
+                        // Continue with the flow
+                    }
+                    
+                    // Store basic user data in localStorage regardless of database success
+                    const userProfile = {
+                        id: userId,
                         email: session.user.email,
-                        last_sign_in: new Date().toISOString()
+                        name: session.user.user_metadata.full_name || session.user.user_metadata.name || 'User',
+                        provider: session.user.app_metadata.provider,
+                        avatarUrl: session.user.user_metadata.avatar_url || session.user.user_metadata.picture,
+                        lastLogin: new Date().toISOString(),
+                        plan: subscriptionSuccess ? 'free' : 'free' // Default to free plan even if subscription creation failed
                     };
                     
-                    await storeUserSocialProfile(userId, userData);
+                    localStorage.setItem('recibee_user', JSON.stringify(userProfile));
                     
                     // Show success verification message before redirect
                     showVerificationMessage();
                     
-                    // Redirect after a short delay
+                    // Redirect after a short delay - even if we had database errors
                     setTimeout(() => {
-                        window.location.href = 'account.html';
+                        if (window.recibeeAuth) {
+                            // Use the RecibeeAuth utility for redirection
+                            window.recibeeAuth.redirectBasedOnTrial();
+                        } else {
+                            // Fallback to account page if RecibeeAuth is not available
+                            window.location.href = 'account.html';
+                        }
                     }, 2000);
                 } catch (error) {
                     console.error('Error handling social sign in completion:', error);
                     showError(error.message || 'Failed to complete sign in. Please try again.');
+                    
+                    // Even if we have an error, let's still redirect after a longer delay
+                    // This ensures users don't get stuck on the signup page
+                    setTimeout(() => {
+                        // Clear URL parameters/hash and redirect to homepage if we couldn't authenticate
+                        if (session && session.user) {
+                            if (window.recibeeAuth) {
+                                // Use the RecibeeAuth utility for redirection
+                                window.recibeeAuth.redirectBasedOnTrial();
+                            } else {
+                                // Fallback to account page
+                                window.location.href = 'account.html';
+                            }
+                        } else {
+                            window.location.href = '/index.html';
+                        }
+                    }, 5000);
                 }
             }
             

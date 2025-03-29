@@ -20,65 +20,184 @@ class RecibeeAuth {
      * Initialize the auth module
      */
     async init() {
-        // Check if user is already logged in
-        await this.refreshCurrentUser();
-
-        // Set up auth state change listener
+        // Check for existing session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (session) {
+            this.currentUser = session.user;
+            console.log('Session found, user authenticated:', this.currentUser.id);
+            
+            // Check localStorage for additional user data
+            const localUserData = localStorage.getItem('recibee_user');
+            if (localUserData) {
+                try {
+                    const userData = JSON.parse(localUserData);
+                    this.currentUser = { ...this.currentUser, ...userData };
+                } catch (e) {
+                    console.error('Error parsing local user data:', e);
+                }
+            }
+            
+            // Explicitly save user profile to Supabase
+            try {
+                console.log('Ensuring user profile is saved to Supabase');
+                await this.ensureUserProfileSaved();
+            } catch (profileError) {
+                console.error('Error saving user profile during init:', profileError);
+            }
+            
+            // Fetch subscription status - this will also save the user profile
+            await this.fetchSubscriptionStatus();
+        }
+        
+        // Listen for auth changes
         supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth state changed:', event);
             
-            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                await this.refreshCurrentUser();
+            if (event === 'SIGNED_IN' && session) {
+                console.log('User signed in:', session.user.id);
+                this.currentUser = session.user;
+                
+                // Check localStorage for additional user data
+                const localUserData = localStorage.getItem('recibee_user');
+                if (localUserData) {
+                    try {
+                        const userData = JSON.parse(localUserData);
+                        this.currentUser = { ...this.currentUser, ...userData };
+                    } catch (e) {
+                        console.error('Error parsing local user data:', e);
+                    }
+                }
+                
+                // Save user data to localStorage
+                const userProfile = {
+                    id: session.user.id,
+                    email: session.user.email,
+                    name: session.user.user_metadata?.full_name || 
+                          session.user.user_metadata?.name || 
+                          'User',
+                    provider: session.user.app_metadata?.provider,
+                    avatarUrl: session.user.user_metadata?.avatar_url || 
+                               session.user.user_metadata?.picture,
+                    lastLogin: new Date().toISOString()
+                };
+                localStorage.setItem('recibee_user', JSON.stringify(userProfile));
+                
+                // Explicitly save user profile to Supabase
+                try {
+                    console.log('Explicitly saving user profile after sign in');
+                    await this.ensureUserProfileSaved();
+                } catch (profileError) {
+                    console.error('Error saving user profile during sign in:', profileError);
+                }
+                
+                // Fetch subscription status
+                await this.fetchSubscriptionStatus();
+                
+                // Notify listeners
+                this.notifyListeners();
             } else if (event === 'SIGNED_OUT') {
+                console.log('User signed out');
                 this.currentUser = null;
                 localStorage.removeItem('recibee_user');
+                localStorage.removeItem('recibee_subscription');
+                
+                // Notify listeners
+                this.notifyListeners();
+            } else if (event === 'TOKEN_REFRESHED' && session) {
+                console.log('Token refreshed, updating user data');
+                this.currentUser = session.user;
+                
+                // Save user profile after token refresh
+                try {
+                    await this.ensureUserProfileSaved();
+                } catch (profileError) {
+                    console.error('Error saving user profile during token refresh:', profileError);
+                }
             }
-            
-            // Notify listeners of auth state change
-            this.notifyListeners(event, this.currentUser);
         });
+        
+        // Notify listeners of initial state
+        this.notifyListeners();
     }
 
     /**
-     * Refresh current user data
+     * Ensure the user profile is saved to Supabase
      */
-    async refreshCurrentUser() {
+    async ensureUserProfileSaved() {
+        if (!this.currentUser) {
+            console.log('No current user, skipping profile save');
+            return;
+        }
+        
         try {
-            // Get current session
-            const { data: { session }, error } = await supabase.auth.getSession();
+            console.log('Saving user profile for:', this.currentUser.id);
             
-            if (error) throw error;
-            if (!session) return;
-
-            // Get user details
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            
-            if (userError) throw userError;
-            if (!user) return;
-
-            // Get user profile data from subscriptions
-            const { data: subscription, error: subError } = await supabase
-                .from('subscriptions')
-                .select('*')
-                .eq('user_id', user.id)
-                .single();
-
-            // Create user profile object
-            this.currentUser = {
-                id: user.id,
-                email: user.email,
-                name: user.user_metadata?.full_name || 'User',
-                isVerified: user.email_confirmed_at ? true : false,
-                plan: subscription?.plan_type || 'free',
-                isPro: subscription?.is_active || false,
-                lastLogin: new Date().toISOString()
+            // Extract user metadata from auth provider
+            const userData = {
+                user_id: this.currentUser.id,
+                full_name: this.currentUser.user_metadata?.full_name || 
+                           this.currentUser.user_metadata?.name || 
+                           this.currentUser?.name ||
+                           'User',
+                avatar_url: this.currentUser.user_metadata?.avatar_url || 
+                            this.currentUser.user_metadata?.picture ||
+                            this.currentUser?.avatarUrl,
+                provider: this.currentUser.app_metadata?.provider || 
+                          this.currentUser?.provider ||
+                          'email',
+                email: this.currentUser.email,
+                last_sign_in: new Date().toISOString()
             };
-
-            // Save to localStorage for persistence
-            localStorage.setItem('recibee_user', JSON.stringify(this.currentUser));
+            
+            console.log('User profile data to save:', JSON.stringify(userData));
+            
+            // Check if user profile exists
+            const { data: existingProfile, error: fetchError } = await supabase
+                .from('user_profiles')
+                .select('id')
+                .eq('user_id', this.currentUser.id)
+                .single();
+                
+            if (fetchError && fetchError.code !== 'PGRST116') {
+                // If error is not just "no rows found", log it
+                console.error('Error checking user profile:', fetchError);
+            }
+            
+            if (existingProfile) {
+                // Update existing profile
+                console.log('Updating existing profile for user:', this.currentUser.id);
+                const { error: updateError } = await supabase
+                    .from('user_profiles')
+                    .update(userData)
+                    .eq('user_id', this.currentUser.id);
+                
+                if (updateError) {
+                    console.error('Error updating user profile:', updateError);
+                    throw updateError;
+                }
+                console.log('User profile updated successfully');
+            } else {
+                // Create new profile
+                console.log('Creating new profile for user:', this.currentUser.id);
+                const { error: insertError } = await supabase
+                    .from('user_profiles')
+                    .insert([userData]);
+                
+                if (insertError) {
+                    console.error('Error creating user profile:', insertError);
+                    throw insertError;
+                }
+                console.log('User profile created successfully');
+            }
         } catch (error) {
-            console.error('Error refreshing user data:', error);
-            this.currentUser = null;
+            console.error('Error saving user profile to Supabase:', error);
+            
+            // Additional troubleshooting information
+            console.log('Current user metadata:', this.currentUser.user_metadata);
+            console.log('Current user app metadata:', this.currentUser.app_metadata);
+            
+            // Don't throw, just log the error to prevent breaking the auth flow
         }
     }
 
