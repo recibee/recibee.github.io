@@ -94,7 +94,8 @@
                 <div id="mobile-user-info" class="md:hidden hidden">
                     <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
                         <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <i class="fas fa-user-circle text-primary/70 text-sm"></i>
+                            <img id="mobile-user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('mobile-fallback-icon').style.display='flex';" />
+                            <i id="mobile-fallback-icon" class="fas fa-user-circle text-primary/70 text-sm" style="display: flex;"></i>
                         </div>
                     </a>
                 </div>
@@ -489,17 +490,27 @@
                 // Hide the auth buttons
                 authButtons.classList.add('hidden');
                 
-                // Set user avatar if available
+                // Set user avatar if available - for desktop
                 const userAvatar = document.getElementById('user-avatar');
                 const fallbackIcon = document.getElementById('fallback-icon');
+                
+                // Set user avatar if available - for mobile
+                const mobileUserAvatar = document.getElementById('mobile-user-avatar');
+                const mobileFallbackIcon = document.getElementById('mobile-fallback-icon');
                 
                 if (user && user.user_metadata) {
                     const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture;
                     if (avatarUrl) {
                         console.log('Setting user avatar to:', avatarUrl);
+                        // Desktop
                         userAvatar.src = avatarUrl;
                         userAvatar.style.display = 'block';
                         fallbackIcon.style.display = 'none';
+                        
+                        // Mobile
+                        mobileUserAvatar.src = avatarUrl;
+                        mobileUserAvatar.style.display = 'block';
+                        mobileFallbackIcon.style.display = 'none';
                     }
                 } else {
                     // Try to get avatar from localStorage as fallback
@@ -507,9 +518,15 @@
                         const storedUser = JSON.parse(localStorage.getItem('recibee_user'));
                         if (storedUser && storedUser.avatarUrl) {
                             console.log('Using avatar from localStorage:', storedUser.avatarUrl);
+                            // Desktop
                             userAvatar.src = storedUser.avatarUrl;
                             userAvatar.style.display = 'block';
                             fallbackIcon.style.display = 'none';
+                            
+                            // Mobile
+                            mobileUserAvatar.src = storedUser.avatarUrl;
+                            mobileUserAvatar.style.display = 'block';
+                            mobileFallbackIcon.style.display = 'none';
                         }
                     } catch (e) {
                         console.error('Error parsing stored user:', e);
