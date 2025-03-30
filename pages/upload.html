@@ -73,27 +73,33 @@
                 <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
                 <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
             </a>
+            
+            <!-- Navigation links (desktop only) -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
+                <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+            </div>
+            
+            <!-- Right side (auth/profile) -->
             <div class="flex items-center">
-                <div class="hidden md:flex space-x-6 items-center">
-                    <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
-                    <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <!-- Auth buttons -->
+                <div id="auth-buttons">
+                    <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
                 </div>
+                
                 <!-- Desktop user profile icon - only visible on md screens and up -->
-                <div id="user-info" class="hidden md:block ml-4">
-                    <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
+                <div id="user-info" class="hidden md:flex items-center">
+                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
                         <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
                             <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
                             <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
                         </div>
                     </a>
                 </div>
-                <!-- Auth buttons -->
-                <div id="auth-buttons">
-                    <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
-                </div>
+                
                 <!-- Mobile user profile icon - only visible on small screens -->
                 <div id="mobile-user-info" class="hidden md:hidden">
-                    <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
+                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
                         <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
                             <img id="mobile-user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('mobile-fallback-icon').style.display='flex';" />
                             <i id="mobile-fallback-icon" class="fas fa-user-circle text-primary/70 text-sm" style="display: flex;"></i>
