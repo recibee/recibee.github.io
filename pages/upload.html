@@ -79,8 +79,8 @@
                 <div id="user-info" class="hidden">
                     <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
                         <div id="avatar-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="user-avatar" src="/assets/icons/default-avatar.png" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <i class="fas fa-user text-primary/70 text-lg sm:text-xl" style="display: none;"></i>
+                            <img id="user-avatar" src="/assets/icons/favicon.svg" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
+                            <i id="fallback-icon" class="fas fa-user text-primary/70 text-lg sm:text-xl" style="display: none;"></i>
                         </div>
                     </a>
                 </div>
@@ -474,24 +474,26 @@
                 
                 // Set user avatar if available
                 const userAvatar = document.getElementById('user-avatar');
+                const fallbackIcon = document.getElementById('fallback-icon');
+                
                 if (user && user.user_metadata) {
                     const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture;
                     if (avatarUrl) {
                         console.log('Setting user avatar to:', avatarUrl);
                         userAvatar.src = avatarUrl;
+                        userAvatar.style.display = 'block';
+                        fallbackIcon.style.display = 'none';
                         
-                        // Ensure the image loads properly
-                        userAvatar.onload = function() {
-                            console.log('Avatar image loaded successfully');
-                        };
-                        
+                        // Add error handling
                         userAvatar.onerror = function() {
                             console.error('Failed to load avatar from:', avatarUrl);
                             this.style.display = 'none';
-                            this.nextElementSibling.style.display = 'flex';
+                            fallbackIcon.style.display = 'flex';
                         };
                     } else {
-                        console.log('No avatar URL found in user metadata');
+                        console.log('No avatar URL found in user metadata, using fallback icon');
+                        userAvatar.style.display = 'none';
+                        fallbackIcon.style.display = 'flex';
                     }
                 } else {
                     // Try to get avatar from localStorage as fallback
@@ -500,9 +502,24 @@
                         if (storedUser && storedUser.avatarUrl) {
                             console.log('Using avatar from localStorage:', storedUser.avatarUrl);
                             userAvatar.src = storedUser.avatarUrl;
+                            userAvatar.style.display = 'block';
+                            fallbackIcon.style.display = 'none';
+                            
+                            // Add error handling
+                            userAvatar.onerror = function() {
+                                console.error('Failed to load avatar from localStorage:', storedUser.avatarUrl);
+                                this.style.display = 'none';
+                                fallbackIcon.style.display = 'flex';
+                            };
+                        } else {
+                            console.log('No avatar in localStorage, using fallback icon');
+                            userAvatar.style.display = 'none';
+                            fallbackIcon.style.display = 'flex';
                         }
                     } catch (e) {
                         console.error('Error parsing stored user:', e);
+                        userAvatar.style.display = 'none';
+                        fallbackIcon.style.display = 'flex';
                     }
                 }
             }

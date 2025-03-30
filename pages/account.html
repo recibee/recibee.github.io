@@ -99,10 +99,6 @@
                                             <span class="text-dark/70">Subscription</span>
                                             <span class="text-dark" id="subscription-type">Free Plan</span>
                                         </li>
-                                        <li id="remaining-uses-item" class="flex items-center justify-between">
-                                            <span class="text-dark/70">Remaining uses</span>
-                                            <span class="text-dark" id="remaining-uses">3/3</span>
-                                        </li>
                                     </ul>
                                 </div>
                                 
@@ -272,24 +268,9 @@
             const subscriptionType = userData.plan === 'pro' ? 'Pro Plan' : 'Free Plan';
             document.getElementById('subscription-type').textContent = subscriptionType;
             
-            // Handle usage count
-            const usageCount = document.getElementById('usage-count');
-            let totalUses = 0;
-            
-            if (localStorage.getItem('recibee_uses')) {
-                totalUses = parseInt(localStorage.getItem('recibee_uses'));
-            }
-            
-            usageCount.textContent = `${totalUses}/3 Uses`;
-            usageCount.classList.remove('hidden');
-            
-            // Show remaining uses for free users
+            // Show upgrade CTA for free users
             if (userData.plan === 'free') {
-                document.getElementById('remaining-uses').textContent = `${3 - totalUses}/3`;
                 document.getElementById('free-user-cta').classList.remove('hidden');
-            } else {
-                // Hide remaining uses for pro users
-                document.getElementById('remaining-uses-item').classList.add('hidden');
             }
             
             // Check if user is coming from payment page
@@ -299,16 +280,22 @@
                 // Update user to pro
                 userData.plan = 'pro';
                 localStorage.setItem('recibee_user', JSON.stringify(userData));
-                // Hide subscription type
-                document.getElementById('remaining-uses-item').classList.add('hidden');
+                // Update subscription type
                 document.getElementById('subscription-type').textContent = 'Pro Plan';
                 document.getElementById('free-user-cta').classList.add('hidden');
             }
             
             // Handle logout
             document.getElementById('logout-button').addEventListener('click', function() {
-                localStorage.removeItem('recibee_user');
-                window.location.href = 'login.html';
+                supabaseClient.auth.signOut().then(() => {
+                    // Clear any local storage items
+                    localStorage.removeItem('recibee_user');
+                    // Redirect to login page
+                    window.location.href = '/pages/login.html';
+                }).catch(error => {
+                    console.error('Error signing out:', error);
+                    alert('Failed to sign out. Please try again.');
+                });
             });
             
             // Handle upgrade button
