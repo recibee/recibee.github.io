@@ -53,8 +53,8 @@
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 0.5rem;
             overflow: hidden;
-            margin-bottom: 0.75rem;
-            max-height: calc(100vh - 120px); /* Ensure there's space for the capture button */
+            margin-bottom: 1rem;
+            max-height: calc(100vh - 130px); /* Ensure there's space for the capture button */
         }
         
         .camera-video {
@@ -65,11 +65,10 @@
         
         /* Make sure the capture button is positioned properly and visible */
         .capture-button-container {
-            position: sticky;
+            position: relative;
             bottom: 0;
             width: 100%;
-            padding: 0.5rem 0;
-            background-color: rgba(0, 0, 0, 0.95);
+            margin-top: auto;
             z-index: 1000;
         }
     </style>
@@ -785,7 +784,7 @@
                         captureButtonContainer.className = 'capture-button-container';
                         
                         const captureBtn = document.createElement('button');
-                        captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center text-lg';
+                        captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center';
                         captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capture Photo';
                         
                         captureButtonContainer.appendChild(captureBtn);
