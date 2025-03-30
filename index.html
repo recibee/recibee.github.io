@@ -573,8 +573,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
                 <!-- Free Plan -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                    <div class="p-6 md:p-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 border border-gray-100/50 flex flex-col">
+                    <div class="p-6 md:p-8 flex-grow">
                         <h3 class="text-xl font-bold mb-2">Free</h3>
                         <div class="mb-6">
                             <span class="text-3xl font-bold">$0</span>
@@ -596,19 +596,19 @@
                     </div>
                     
                     <div class="p-6 md:p-8 bg-gray-50">
-                        <a href="/pages/signup.html" class="btn-secondary w-full text-center block">Get Started</a>
+                        <a href="/pages/pricing.html" class="btn-secondary w-full text-center block">Get Started</a>
                     </div>
                 </div>
                 
                 <!-- Premium Plan -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden relative border-2 border-primary transition-all hover:shadow-xl hover:-translate-y-1 transform scale-105 z-10">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden relative border-2 border-primary transition-all hover:shadow-xl hover:-translate-y-1 transform scale-105 z-10 flex flex-col">
                     <div class="absolute top-0 right-0">
                         <div class="bg-primary text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
                             Most Popular
                         </div>
                     </div>
                     
-                    <div class="p-6 md:p-8">
+                    <div class="p-6 md:p-8 flex-grow">
                         <h3 class="text-xl font-bold mb-2">Premium</h3>
                         <div class="mb-6">
                             <span class="text-3xl font-bold">$10</span>
@@ -629,32 +629,20 @@
                         </ul>
                     </div>
                     
-                    <div class="p-6 md:p-8 bg-primary/5">
+                    <div class="p-6 md:p-8 bg-gray-50">
                         <a href="/pages/pricing.html" class="btn-primary w-full text-center block">Choose Plan</a>
                     </div>
                 </div>
                 
                 <!-- Premium Plus Plan -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
-                        <div class="bg-black/5 py-3 px-6 rounded-lg max-w-xs">
-                            <p class="text-dark font-medium text-center">Premium Plus subscription will be available soon</p>
-                        </div>
-                        <div class="mt-6">
-                            <a href="#waitlist" class="inline-flex items-center gap-2 bg-dark text-white py-3 px-6 rounded-md font-medium text-sm hover:bg-dark/90 transition-all shadow-md border border-dark/20">
-                                <i class="fas fa-bell text-primary"></i>
-                                Get Notified
-                            </a>
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all relative filter grayscale opacity-50 border border-gray-200/70 flex flex-col">
+                    <div class="absolute top-0 right-0 z-30">
+                        <div class="bg-orange-500 text-white py-1 px-4 rounded-bl-lg font-bold text-sm animate-pulse">
+                            Coming Soon
                         </div>
                     </div>
                     
-                    <div class="absolute top-0 right-0 z-10">
-                        <div class="bg-dark text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
-                            Advanced
-                        </div>
-                    </div>
-                    
-                    <div class="p-6 md:p-8 filter blur-[1px]">
+                    <div class="p-6 md:p-8 flex-grow">
                         <h3 class="text-xl font-bold mb-2">Premium Plus</h3>
                         <div class="mb-6">
                             <span class="text-3xl font-bold">$19.99</span>
@@ -666,21 +654,25 @@
                         <ul class="space-y-3 mb-8">
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>Everything in Premium</span>
+                                <span>Unlimited ingredient scans</span>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>Access to Recibee Premium</span>
+                                <span>Premium recipe library access</span>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
                                 <span>Monthly chef consultation</span>
                             </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Advanced nutritional analysis</span>
+                            </li>
                         </ul>
                     </div>
                     
-                    <div class="p-6 md:p-8 bg-gray-50 filter blur-[1px]">
-                        <a href="#" class="btn-secondary w-full text-center block cursor-not-allowed opacity-70">Coming Soon</a>
+                    <div class="p-6 md:p-8 bg-gray-50">
+                        <a href="#waitlist" class="btn-secondary w-full text-center block">Get Notified</a>
                     </div>
                 </div>
             </div>
