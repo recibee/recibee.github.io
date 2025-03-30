@@ -73,9 +73,10 @@
                 <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
                 <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
             </a>
-            <div class="hidden md:flex space-x-6">
+            <div class="hidden md:flex space-x-6 items-center">
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <!-- Desktop user profile icon - only visible on md screens and up -->
                 <div id="user-info" class="hidden">
                     <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
                         <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
@@ -85,16 +86,18 @@
                     </a>
                 </div>
             </div>
-            <div id="auth-buttons">
-                <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
-            </div>
-            <!-- Mobile user profile icon -->
-            <div id="mobile-user-info" class="md:hidden hidden">
-                <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
-                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                        <i class="fas fa-user-circle text-primary/70 text-sm"></i>
-                    </div>
-                </a>
+            <div class="flex items-center">
+                <div id="auth-buttons">
+                    <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
+                </div>
+                <!-- Mobile user profile icon - only visible on small screens -->
+                <div id="mobile-user-info" class="md:hidden hidden">
+                    <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
+                            <i class="fas fa-user-circle text-primary/70 text-sm"></i>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -476,10 +479,14 @@
                 usesRemaining = Math.max(0, 3 - totalUses);
             }
             
-            // Update UI based on usage count
+            // Update UI based on login state
             if (isLoggedIn) {
+                // Make the appropriate profile icon visible based on screen size
+                // (hidden vs md:hidden class controls which one actually displays)
                 userInfo.classList.remove('hidden');
                 document.getElementById('mobile-user-info').classList.remove('hidden');
+                
+                // Hide the auth buttons
                 authButtons.classList.add('hidden');
                 
                 // Set user avatar if available
