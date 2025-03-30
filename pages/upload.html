@@ -730,49 +730,83 @@
                 uploadPrompt.classList.remove('hidden');
             });
             
-            // Update find-recipes button to use the captured image if available
-            findRecipesBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Check if a file has been uploaded or captured
-                let fileToProcess = null;
-                
-                if (window.capturedImageFile) {
-                    // Use the captured image from camera
-                    fileToProcess = window.capturedImageFile;
-                    console.log('Using captured image for processing');
-                } else if (fileUpload.files && fileUpload.files[0]) {
-                    // Use the uploaded file
-                    fileToProcess = fileUpload.files[0];
-                    console.log('Using uploaded file for processing');
-                }
-                
-                if (!fileToProcess) {
-                    console.error('No file selected or captured');
-                    return;
-                }
+            // Handle find recipes button
+            findRecipesBtn.addEventListener('click', async function() {
+                // Disable the button to prevent multiple clicks
+                findRecipesBtn.disabled = true;
+                findRecipesBtn.classList.add('opacity-50');
                 
                 // Show analyzing status
                 analyzingStatus.classList.remove('hidden');
                 
-                // Track the upload if a free trial use
-                if (!isProUser) {
-                    trackUpload().then(success => {
-                        if (success) {
-                            // Redirect to results page (normally would process image first)
-                            setTimeout(() => {
-                                window.location.href = '/pages/results.html?source=upload';
-                            }, 2000);
-                        } else {
-                            analyzingStatus.classList.add('hidden');
-                            alert('Error tracking usage. Please try again.');
+                try {
+                    // Double check if user still has uses remaining
+                    if (usesRemaining <= 0 && !isProUser) {
+                        throw new Error("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    }
+                    
+                    // Use captured image file if available, otherwise use uploaded file
+                    let fileToProcess = null;
+                    if (window.capturedImageFile) {
+                        fileToProcess = window.capturedImageFile;
+                        console.log('Using captured image for processing');
+                    } else if (fileUpload.files && fileUpload.files[0]) {
+                        fileToProcess = fileUpload.files[0];
+                        console.log('Using uploaded file for processing');
+                    }
+                    
+                    if (!fileToProcess) {
+                        throw new Error('No file selected or captured');
+                    }
+                
+                    // Track the upload in Supabase
+                    const uploadSuccess = await trackUpload();
+                    
+                    if (!uploadSuccess) {
+                        throw new Error("Failed to track upload. Please try again.");
+                    }
+                    
+                    // Increment local usage count
+                    totalUses++;
+                    localStorage.setItem('recibee_uses', totalUses);
+                    
+                    // Update remaining uses
+                    if (!isProUser) {
+                        usesRemaining = Math.max(0, 3 - totalUses);
+                        
+                        // Update the displayed remaining uses
+                        if (remainingUses) {
+                            remainingUses.textContent = `${usesRemaining}/3`;
+                            
+                            // Update color based on new remaining uses
+                            remainingUses.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
+                            if (usesRemaining === 0) {
+                                remainingUses.classList.add('text-red-600');
+                            } else if (usesRemaining === 1) {
+                                remainingUses.classList.add('text-yellow-600');
+                            } else {
+                                remainingUses.classList.add('text-green-600');
+                            }
                         }
-                    });
-                } else {
-                    // For pro users, just redirect (normally would process image first)
-                    setTimeout(() => {
-                        window.location.href = '/pages/results.html?source=upload';
+                    }
+                    
+                    // Simulate API call delay (replace with actual API call for ingredient recognition)
+                    setTimeout(function() {
+                        // Redirect to recipes page
+                        window.location.href = '/pages/recipes.html';
                     }, 2000);
+                } catch (error) {
+                    console.error('Error processing upload:', error);
+                    
+                    // Re-enable the button
+                    findRecipesBtn.disabled = false;
+                    findRecipesBtn.classList.remove('opacity-50');
+                    
+                    // Hide analyzing status
+                    analyzingStatus.classList.add('hidden');
+                    
+                    // Show error message
+                    alert(error.message || 'There was an error processing your upload. Please try again.');
                 }
             });
             
