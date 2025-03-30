@@ -25,9 +25,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Google reCAPTCHA v2 -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    
     <style>
         .form-container {
             max-width: 700px;
@@ -129,6 +126,10 @@
                 <a href="/pages/pricing.html" class="text-[#1A1A1A] hover:text-primary transition-colors">Pricing</a>
                 <a href="/index.html#testimonials" class="text-[#1A1A1A] hover:text-primary transition-colors">Testimonials</a>
             </div>
+            <div class="flex items-center">
+                <a href="/pages/signup.html" class="text-[#1A1A1A] hover:text-primary transition-colors px-4 py-2 rounded-lg mr-2">Sign Up</a>
+                <a href="/pages/login.html" class="btn-primary">Login</a>
+            </div>
         </div>
     </nav>
 
@@ -169,12 +170,7 @@
                     
                     <div class="form-group">
                         <label for="problem" class="form-label">Describe the Problem<span class="form-required">*</span></label>
-                        <textarea id="problem" name="entry.456789012" class="form-input form-textarea" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="g-recaptcha" data-sitekey="6Lfxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
-                        <p class="text-dark/50 text-sm mt-2">This helps us prevent spam submissions</p>
+                        <textarea id="problem" name="entry.541445656" class="form-input form-textarea" required></textarea>
                     </div>
                     
                     <div class="text-right">
@@ -214,53 +210,12 @@
             progressBar.style.width = scrollPercent * 100 + '%';
         });
         
-        // Form submission handler with anti-spam measures
+        // Form submission handler
         document.getElementById('reportForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Anti-spam: Check if already submitted recently
-            const lastSubmission = localStorage.getItem('last_report_submission');
-            const now = new Date().getTime();
-            
-            if (lastSubmission && (now - parseInt(lastSubmission)) < 300000) { // 5 minutes (300000ms)
-                document.getElementById('errorMessage').textContent = 'Please wait at least 5 minutes between submissions.';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-            
-            // Basic form validation
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const problem = document.getElementById('problem').value.trim();
-            
-            // Check for very short submissions (likely spam)
-            if (problem.length < 10) {
-                document.getElementById('errorMessage').textContent = 'Please provide a more detailed description of the problem.';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-            
-            // Check for repetitive content (likely spam)
-            if (/(.)\1{10,}/.test(problem)) {
-                document.getElementById('errorMessage').textContent = 'Your message appears to contain repetitive characters. Please revise.';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-            
-            // Verify reCAPTCHA
-            const recaptchaResponse = grecaptcha.getResponse();
-            if (!recaptchaResponse) {
-                document.getElementById('errorMessage').textContent = 'Please complete the reCAPTCHA verification.';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-            
             const formData = new FormData(this);
             const url = this.action;
-            
-            // Set submission timestamp to prevent multiple rapid submissions
-            localStorage.setItem('last_report_submission', now.toString());
             
             // Submit to Google Forms
             fetch(url, {
