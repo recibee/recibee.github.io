@@ -69,29 +69,6 @@
     </style>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
-    <!-- Facebook SDK -->
-    <script>
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '{your-app-id}',
-          cookie     : true,
-          xfbml      : true,
-          version    : '{api-version}'
-        });
-          
-        FB.AppEvents.logPageView();   
-          
-      };
-    
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "https://connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
-    </script>
-    
     <!-- Progress Bar -->
     <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
     
@@ -653,36 +630,19 @@
                 hideError();
                 
                 try {
-                    // Use the Facebook SDK for authentication
-                    FB.login(async function(response) {
-                        if (response.status === 'connected') {
-                            // The user is logged in and has authenticated your app
-                            console.log('Facebook login successful', response);
-                            
-                            // Get the Facebook access token
-                            const fbAccessToken = response.authResponse.accessToken;
-                            
-                            // Use the token to sign in with Supabase
-                            const { data, error } = await supabaseClient.auth.signInWithIdToken({
-                                provider: 'facebook',
-                                token: fbAccessToken,
-                            });
-                            
-                            if (error) {
-                                console.error('Supabase Facebook token error:', error);
-                                showError(error.message || 'Failed to authenticate with Facebook token. Please try again.');
-                                return;
-                            }
-                            
-                            // Handle successful login
-                            console.log('Supabase Facebook login successful', data);
-                            await handleSocialSignInComplete(data.session);
-                        } else {
-                            // The user cancelled the login or did not fully authorize
-                            console.error('Facebook login cancelled or failed');
-                            showError('Facebook login was cancelled or failed. Please try again.');
+                    // Authenticate with Facebook
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                        provider: 'facebook',
+                        options: {
+                            redirectTo: 'https://recibee.github.io/pages/login.html' + window.location.search,
+                            scopes: 'email,public_profile'
                         }
-                    }, {scope: 'email,public_profile'});
+                    });
+                    
+                    if (error) throw error;
+                    
+                    // The redirect will happen automatically
+                    console.log('Redirecting to Facebook auth...', data);
                 } catch (error) {
                     console.error('Facebook signin error:', error);
                     showError(error.message || 'Failed to sign in with Facebook. Please try again.');
