@@ -88,7 +88,7 @@
                 </div>
                 
                 <!-- Desktop user profile icon - only visible on md screens and up -->
-                <div id="user-info" class="hidden md:flex items-center">
+                <div id="user-info" class="hidden md:block">
                     <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
                         <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
                             <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
@@ -490,8 +490,9 @@
             // Update UI based on login state
             if (isLoggedIn) {
                 // Make the appropriate profile icon visible based on screen size
-                // (hidden vs md:hidden class controls which one actually displays)
+                // Desktop profile is already handled by md:block class
                 userInfo.classList.remove('hidden');
+                // Mobile profile is handled by md:hidden class
                 document.getElementById('mobile-user-info').classList.remove('hidden');
                 
                 // Hide the auth buttons
