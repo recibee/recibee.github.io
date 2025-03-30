@@ -7,11 +7,11 @@
     <meta name="description" content="The page you're looking for cannot be found.">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
     
     <!-- Styles -->
     <link rel="stylesheet" href="/dist/output.css">
@@ -19,6 +19,60 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background-color: #FF8000;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-primary:hover {
+            background-color: #E67300;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            background-color: white;
+            color: #333;
+            font-weight: 600;
+            border: 2px solid #E5E5E5;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-secondary:hover {
+            border-color: #CCCCCC;
+            transform: translateY(-1px);
+        }
+        
+        .text-primary {
+            color: #FF8000;
+        }
+        
+        .bg-cream {
+            background-color: #FFF8F0;
+        }
+        
+        .bg-dark {
+            background-color: #333;
+        }
+        
+        .text-dark {
+            color: #333;
+        }
+    </style>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
     <!-- Progress Bar -->
@@ -62,12 +116,21 @@
     </main>
 
     <!-- Footer -->
-
-    <!-- Footer will be loaded dynamically -->
-    <div id="footer-placeholder"></div>
-
-    <!-- 404 Error Handler -->
-    <script src="/pages/404.js"></script>
+    <footer class="bg-dark py-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/report-problem.html" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
+                </div>
+            </div>
+        </div>
+    </footer>
     
     <script>
     // Progress bar functionality
@@ -85,6 +148,5 @@
     // Initial update
     updateProgressBar();
     </script>
-    <script src="/assets/js/footer-loader.js"></script>
 </body>
 </html> 
