@@ -42,6 +42,7 @@
             flex-direction: column;
             padding: 1rem;
             height: 100vh;
+            box-sizing: border-box;
         }
         
         .camera-container {
@@ -52,13 +53,24 @@
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 0.5rem;
             overflow: hidden;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            max-height: calc(100vh - 120px); /* Ensure there's space for the capture button */
         }
         
         .camera-video {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+        
+        /* Make sure the capture button is positioned properly and visible */
+        .capture-button-container {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            padding: 0.5rem 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
         }
     </style>
 </head>
@@ -166,11 +178,11 @@
                                     <p class="text-dark/70 text-sm max-w-sm mx-auto">Supports JPG, PNG, HEIF formats up to 20MB</p>
                                     
                                     <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-                                        <button id="camera-button" class="btn-secondary px-5 flex items-center">
+                                        <button id="camera-button" class="btn-secondary px-5 py-3 flex items-center justify-center w-full sm:w-auto text-base">
                                             <i class="fas fa-camera mr-2"></i> 
                                             Take Photo
                                         </button>
-                                        <button id="browse-button" class="btn-primary px-5 flex items-center">
+                                        <button id="browse-button" class="btn-primary px-5 py-3 flex items-center justify-center w-full sm:w-auto text-base">
                                             <i class="fas fa-folder-open mr-2"></i>
                                             Browse Files
                                         </button>
@@ -246,9 +258,9 @@
         
         // For testing: Reset localStorage
         // Uncomment and run once to clear your usage count
-        // localStorage.removeItem('recibee_uses');
-        // localStorage.removeItem('recibee_session_id');
-        // console.log('LocalStorage reset for testing');
+        localStorage.removeItem('recibee_uses');
+        localStorage.removeItem('recibee_session_id');
+        console.log('LocalStorage reset for testing');
         
         // Generate or retrieve a session ID
         function getSessionId() {
@@ -565,11 +577,14 @@
             // Handle browse button click
             browseButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
                 }
+                // Ensure the input is properly reset to allow selecting the same file again
+                fileUpload.value = '';
                 fileUpload.removeAttribute('capture'); // Remove capture attribute for browsing files
                 fileUpload.click();
             });
@@ -577,11 +592,14 @@
             // Handle browse trigger text click
             browseTrigger.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse trigger clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
                 }
+                // Ensure the input is properly reset to allow selecting the same file again
+                fileUpload.value = '';
                 fileUpload.removeAttribute('capture'); // Remove capture attribute for browsing files
                 fileUpload.click();
             });
@@ -664,144 +682,179 @@
             // Handle camera button click
             cameraButton.addEventListener('click', async function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
                 console.log('Camera button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
                 }
                 
+                // iOS detection (for special handling)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                
                 // Check if camera is supported
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    // Fallback for older browsers that don't support getUserMedia
-                    console.log('Camera not supported, falling back to file input with capture');
+                    // Fallback for older browsers or iOS
+                    console.log('Camera API not supported, falling back to file input with capture');
+                    fileUpload.value = ''; // Clear any previous selection
                     fileUpload.setAttribute('capture', 'environment');
                     fileUpload.click();
                     return;
                 }
                 
-                try {
-                    // Request camera access
-                    console.log('Requesting camera access');
-                    const stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { 
-                            facingMode: 'environment', // Use the back camera if available
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
-                        } 
-                    });
-                    console.log('Camera access granted');
-                    
-                    // Create a video element to display the camera feed
-                    const videoElement = document.createElement('video');
-                    videoElement.srcObject = stream;
-                    videoElement.autoplay = true;
-                    videoElement.playsInline = true; // Important for iOS
-                    videoElement.muted = true;  // Often needed for autoplay
-                    
-                    // Create a canvas to capture the image
-                    const canvas = document.createElement('canvas');
-                    
-                    // Create UI for camera view
-                    const cameraView = document.createElement('div');
-                    cameraView.className = 'camera-view';
-                    
-                    // Add header with title and close button
-                    const header = document.createElement('div');
-                    header.className = 'flex justify-between items-center mb-4';
-                    
-                    const title = document.createElement('h3');
-                    title.className = 'text-white font-semibold';
-                    title.textContent = 'Take Photo';
-                    
-                    const closeBtn = document.createElement('button');
-                    closeBtn.className = 'text-white hover:text-primary';
-                    closeBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
-                    
-                    header.appendChild(title);
-                    header.appendChild(closeBtn);
-                    
-                    // Add video container
-                    const videoContainer = document.createElement('div');
-                    videoContainer.className = 'camera-container';
-                    
-                    // Ensure video is properly sized within the container
-                    videoElement.className = 'camera-video';
-                    videoContainer.appendChild(videoElement);
-                    
-                    // Add capture button
-                    const captureBtn = document.createElement('button');
-                    captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center';
-                    captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capture Photo';
-                    
-                    // Assemble camera view
-                    cameraView.appendChild(header);
-                    cameraView.appendChild(videoContainer);
-                    cameraView.appendChild(captureBtn);
-                    
-                    // Add to page
-                    document.body.appendChild(cameraView);
-                    document.body.style.overflow = 'hidden'; // Prevent scrolling
-                    console.log('Camera UI created and displayed');
-                    
-                    // Handle close button
-                    closeBtn.addEventListener('click', function() {
-                        console.log('Camera closed');
-                        // Stop video stream
-                        stream.getTracks().forEach(track => track.stop());
-                        // Remove camera view
-                        document.body.removeChild(cameraView);
-                        document.body.style.overflow = '';
-                    });
-                    
-                    // Handle capture button
-                    captureBtn.addEventListener('click', function() {
-                        try {
-                            // Set canvas dimensions to match video
-                            canvas.width = videoElement.videoWidth;
-                            canvas.height = videoElement.videoHeight;
-                            
-                            // Draw the current video frame to the canvas
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                            
-                            // Convert canvas to image data URL
-                            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                            
-                            // Set the preview image
-                            imagePreview.src = imageDataUrl;
-                            uploadPrompt.classList.add('hidden');
-                            previewContainer.classList.remove('hidden');
-                            
-                            // Convert data URL to Blob for potential upload
-                            canvas.toBlob(function(blob) {
-                                // Create a File object from the Blob
-                                const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
-                                
-                                // Store the file for later processing
-                                window.capturedImageFile = file;
-                                
-                                console.log('Image captured and ready for processing');
-                            }, 'image/jpeg', 0.8);
-                            
+                // For iOS, offer both options as getUserMedia can be unreliable
+                if (isIOS) {
+                    try {
+                        // First try getUserMedia for iOS
+                        startCamera();
+                    } catch (error) {
+                        console.error('Error accessing camera on iOS:', error);
+                        // Fallback to input capture for iOS
+                        fileUpload.value = ''; // Clear any previous selection
+                        fileUpload.setAttribute('capture', 'environment');
+                        fileUpload.click();
+                    }
+                } else {
+                    // For non-iOS devices, just use getUserMedia
+                    try {
+                        startCamera();
+                    } catch (error) {
+                        console.error('Error accessing camera:', error);
+                        alert('Could not access camera. Please check permissions and try again.');
+                        
+                        // Fallback to file input if camera access fails
+                        fileUpload.value = ''; // Clear any previous selection
+                        fileUpload.setAttribute('capture', 'environment');
+                        fileUpload.click();
+                    }
+                }
+                
+                // Function to start the camera UI
+                async function startCamera() {
+                    try {
+                        // Request camera access
+                        console.log('Requesting camera access');
+                        const stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                facingMode: 'environment', // Use the back camera if available
+                                width: { ideal: 1280 },
+                                height: { ideal: 720 }
+                            } 
+                        });
+                        console.log('Camera access granted');
+                        
+                        // Create a video element to display the camera feed
+                        const videoElement = document.createElement('video');
+                        videoElement.srcObject = stream;
+                        videoElement.autoplay = true;
+                        videoElement.playsInline = true; // Important for iOS
+                        videoElement.muted = true;  // Often needed for autoplay
+                        
+                        // Create a canvas to capture the image
+                        const canvas = document.createElement('canvas');
+                        
+                        // Create UI for camera view
+                        const cameraView = document.createElement('div');
+                        cameraView.className = 'camera-view';
+                        
+                        // Add header with title and close button
+                        const header = document.createElement('div');
+                        header.className = 'flex justify-between items-center mb-2';
+                        
+                        const title = document.createElement('h3');
+                        title.className = 'text-white font-semibold';
+                        title.textContent = 'Take Photo';
+                        
+                        const closeBtn = document.createElement('button');
+                        closeBtn.className = 'text-white hover:text-primary p-2';
+                        closeBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+                        
+                        header.appendChild(title);
+                        header.appendChild(closeBtn);
+                        
+                        // Add video container
+                        const videoContainer = document.createElement('div');
+                        videoContainer.className = 'camera-container';
+                        
+                        // Ensure video is properly sized within the container
+                        videoElement.className = 'camera-video';
+                        videoContainer.appendChild(videoElement);
+                        
+                        // Add capture button in a container
+                        const captureButtonContainer = document.createElement('div');
+                        captureButtonContainer.className = 'capture-button-container';
+                        
+                        const captureBtn = document.createElement('button');
+                        captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center text-lg';
+                        captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capture Photo';
+                        
+                        captureButtonContainer.appendChild(captureBtn);
+                        
+                        // Assemble camera view
+                        cameraView.appendChild(header);
+                        cameraView.appendChild(videoContainer);
+                        cameraView.appendChild(captureButtonContainer);
+                        
+                        // Add to page
+                        document.body.appendChild(cameraView);
+                        document.body.style.overflow = 'hidden'; // Prevent scrolling
+                        console.log('Camera UI created and displayed');
+                        
+                        // Handle close button
+                        closeBtn.addEventListener('click', function() {
+                            console.log('Camera closed');
                             // Stop video stream
                             stream.getTracks().forEach(track => track.stop());
-                            
                             // Remove camera view
                             document.body.removeChild(cameraView);
                             document.body.style.overflow = '';
-                        } catch (error) {
-                            console.error('Error capturing photo:', error);
-                            alert('Failed to capture photo. Please try again.');
-                        }
-                    });
-                    
-                } catch (error) {
-                    console.error('Error accessing camera:', error);
-                    alert('Could not access camera. Please check permissions and try again.');
-                    
-                    // Fallback to file input if camera access fails
-                    fileUpload.setAttribute('capture', 'environment');
-                    fileUpload.click();
+                        });
+                        
+                        // Handle capture button
+                        captureBtn.addEventListener('click', function() {
+                            try {
+                                // Set canvas dimensions to match video
+                                canvas.width = videoElement.videoWidth;
+                                canvas.height = videoElement.videoHeight;
+                                
+                                // Draw the current video frame to the canvas
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                                
+                                // Convert canvas to image data URL
+                                const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                                
+                                // Set the preview image
+                                imagePreview.src = imageDataUrl;
+                                uploadPrompt.classList.add('hidden');
+                                previewContainer.classList.remove('hidden');
+                                
+                                // Convert data URL to Blob for potential upload
+                                canvas.toBlob(function(blob) {
+                                    // Create a File object from the Blob
+                                    const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+                                    
+                                    // Store the file for later processing
+                                    window.capturedImageFile = file;
+                                    
+                                    console.log('Image captured and ready for processing');
+                                }, 'image/jpeg', 0.8);
+                                
+                                // Stop video stream
+                                stream.getTracks().forEach(track => track.stop());
+                                
+                                // Remove camera view
+                                document.body.removeChild(cameraView);
+                                document.body.style.overflow = '';
+                            } catch (error) {
+                                console.error('Error capturing photo:', error);
+                                alert('Failed to capture photo. Please try again.');
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error in startCamera function:', error);
+                        throw error; // Re-throw to be caught by the calling function
+                    }
                 }
             });
             
