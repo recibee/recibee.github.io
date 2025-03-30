@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>Report a Problem - Recibee</title>
+    <meta name="title" content="Report a Problem - Recibee">
+    <meta name="description" content="Let us know if you've encountered an issue with Recibee. We're here to help!">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FF8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
+    <style>
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: #FF8000;
+            box-shadow: 0 0 0 3px rgba(255, 128, 0, 0.1);
+            outline: none;
+        }
+        
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: #FF8000;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #e67300;
+            transform: translateY(-2px);
+        }
+        
+        .form-required {
+            color: #FF8000;
+            margin-left: 0.25rem;
+        }
+        
+        .success-message, .error-message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgb(52, 211, 153);
+            color: rgb(6, 95, 70);
+        }
+        
+        .error-message {
+            background-color: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgb(248, 113, 113);
+            color: rgb(153, 27, 27);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/index.html" class="inline-flex items-center">
+                    <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                    <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="/index.html#features" class="text-[#1A1A1A] hover:text-primary transition-colors">Features</a>
+                <a href="/pages/pricing.html" class="text-[#1A1A1A] hover:text-primary transition-colors">Pricing</a>
+                <a href="/index.html#testimonials" class="text-[#1A1A1A] hover:text-primary transition-colors">Testimonials</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-12 md:py-16">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-dark mb-4 font-choplin">Report a Problem</h1>
+                <p class="text-dark/70 max-w-2xl mx-auto">
+                    Encountered an issue with Recibee? Let us know and we'll fix it as soon as possible.
+                </p>
+            </div>
+            
+            <div class="form-container">
+                <div id="successMessage" class="success-message">
+                    <p><strong>Thank you!</strong> Your report has been submitted successfully. We'll review it and get back to you if needed.</p>
+                </div>
+                
+                <div id="errorMessage" class="error-message">
+                    <p><strong>Oops!</strong> Something went wrong while submitting your report. Please try again.</p>
+                </div>
+                
+                <form id="reportForm" method="POST" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScgpzzJwl4iuAwpbCnrHhhDdcARnEB532RKcT8_bAQr5mtnLQ/formResponse">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">First Name<span class="form-required">*</span></label>
+                        <input type="text" id="firstName" name="entry.608187708" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Last Name<span class="form-required">*</span></label>
+                        <input type="text" id="lastName" name="entry.437865949" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address<span class="form-required">*</span></label>
+                        <input type="email" id="email" name="entry.899033856" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="problem" class="form-label">Describe the Problem<span class="form-required">*</span></label>
+                        <textarea id="problem" name="entry.456789012" class="form-input form-textarea" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6Lfxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+                        <p class="text-dark/50 text-sm mt-2">This helps us prevent spam submissions</p>
+                    </div>
+                    
+                    <div class="text-right">
+                        <button type="submit" class="submit-btn">
+                            Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark py-8 mt-12">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/report-problem.html" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Progress bar effect
+        const progressBar = document.getElementById('progress-bar');
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.body.offsetHeight;
+            const winHeight = window.innerHeight;
+            const scrollPercent = scrollTop / (docHeight - winHeight);
+            progressBar.style.width = scrollPercent * 100 + '%';
+        });
+        
+        // Form submission handler with anti-spam measures
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Anti-spam: Check if already submitted recently
+            const lastSubmission = localStorage.getItem('last_report_submission');
+            const now = new Date().getTime();
+            
+            if (lastSubmission && (now - parseInt(lastSubmission)) < 300000) { // 5 minutes (300000ms)
+                document.getElementById('errorMessage').textContent = 'Please wait at least 5 minutes between submissions.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
+            // Basic form validation
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const problem = document.getElementById('problem').value.trim();
+            
+            // Check for very short submissions (likely spam)
+            if (problem.length < 10) {
+                document.getElementById('errorMessage').textContent = 'Please provide a more detailed description of the problem.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
+            // Check for repetitive content (likely spam)
+            if (/(.)\1{10,}/.test(problem)) {
+                document.getElementById('errorMessage').textContent = 'Your message appears to contain repetitive characters. Please revise.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
+            // Verify reCAPTCHA
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                document.getElementById('errorMessage').textContent = 'Please complete the reCAPTCHA verification.';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const url = this.action;
+            
+            // Set submission timestamp to prevent multiple rapid submissions
+            localStorage.setItem('last_report_submission', now.toString());
+            
+            // Submit to Google Forms
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(response => {
+                // Google Forms doesn't return a valid response with no-cors
+                // So we just assume success if we get here
+                document.getElementById('reportForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> 

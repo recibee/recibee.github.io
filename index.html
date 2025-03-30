@@ -586,15 +586,11 @@
                         <ul class="space-y-3 mb-8">
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>3 ingredient scans per month</span>
+                                <span>30 ingredient scans per month</span>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
                                 <span>Basic recipe suggestions</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>Access to community recipes</span>
                             </li>
                         </ul>
                     </div>
@@ -615,7 +611,7 @@
                     <div class="p-6 md:p-8">
                         <h3 class="text-xl font-bold mb-2">Premium</h3>
                         <div class="mb-6">
-                            <span class="text-3xl font-bold">$9.99</span>
+                            <span class="text-3xl font-bold">$10</span>
                             <span class="text-dark/60">/month</span>
                         </div>
                         
@@ -624,15 +620,11 @@
                         <ul class="space-y-3 mb-8">
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>Unlimited ingredient scans</span>
+                                <span>Up to 500 ingredient scans</span>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>Advanced recipe suggestions</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                                <span>AI-powered meal planning</span>
+                                <span>Enhanced recipe suggestions sorted by calories and health rating</span>
                             </li>
                         </ul>
                     </div>
@@ -643,8 +635,26 @@
                 </div>
                 
                 <!-- Premium Plus Plan -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                    <div class="p-6 md:p-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
+                        <div class="bg-black/5 py-3 px-6 rounded-lg max-w-xs">
+                            <p class="text-dark font-medium text-center">Premium Plus subscription will be available soon</p>
+                        </div>
+                        <div class="mt-6">
+                            <a href="#waitlist" class="inline-flex items-center gap-2 bg-dark text-white py-3 px-6 rounded-md font-medium text-sm hover:bg-dark/90 transition-all shadow-md border border-dark/20">
+                                <i class="fas fa-bell text-primary"></i>
+                                Get Notified
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-0 right-0 z-10">
+                        <div class="bg-dark text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
+                            Advanced
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 filter blur-[1px]">
                         <h3 class="text-xl font-bold mb-2">Premium Plus</h3>
                         <div class="mb-6">
                             <span class="text-3xl font-bold">$19.99</span>
@@ -669,8 +679,8 @@
                         </ul>
                     </div>
                     
-                    <div class="p-6 md:p-8 bg-gray-50">
-                        <a href="/pages/signup.html?plan=premium-plus" class="btn-secondary w-full text-center block">Choose Plan</a>
+                    <div class="p-6 md:p-8 bg-gray-50 filter blur-[1px]">
+                        <a href="#" class="btn-secondary w-full text-center block cursor-not-allowed opacity-70">Coming Soon</a>
                     </div>
                 </div>
             </div>
@@ -747,7 +757,7 @@
                         >
                         <button 
                             type="submit" 
-                            class="btn-primary whitespace-nowrap"
+                            class="btn-primary rounded-md whitespace-nowrap px-6 py-3"
                         >
                             Join Waitlist
                         </button>
@@ -774,7 +784,7 @@
                     <span class="text-white/70">|</span>
                     <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
                     <span class="text-white/70">|</span>
-                    <a href="#" class="text-white/70 text-sm mx-2 hover:text-white">Contact Support</a>
+                    <a href="/pages/report-problem.html" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
                 </div>
             </div>
         </div>
