@@ -78,15 +78,23 @@
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
                 <div id="user-info" class="hidden">
                     <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
-                        <div id="avatar-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="user-avatar" src="/assets/icons/favicon.svg" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
-                            <i id="fallback-icon" class="fas fa-user text-primary/70 text-lg sm:text-xl" style="display: none;"></i>
+                        <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
+                            <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
+                            <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
                         </div>
                     </a>
                 </div>
             </div>
             <div id="auth-buttons">
                 <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
+            </div>
+            <!-- Mobile user profile icon -->
+            <div id="mobile-user-info" class="md:hidden hidden">
+                <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
+                        <i class="fas fa-user-circle text-primary/70 text-sm"></i>
+                    </div>
+                </a>
             </div>
         </div>
     </nav>
@@ -430,6 +438,7 @@
             if (user) {
                 isLoggedIn = true;
                 userInfo.classList.remove('hidden');
+                document.getElementById('mobile-user-info').classList.remove('hidden');
                 authButtons.classList.add('hidden');
                 
                 // Check if the user is a pro subscriber
@@ -470,6 +479,7 @@
             // Update UI based on usage count
             if (isLoggedIn) {
                 userInfo.classList.remove('hidden');
+                document.getElementById('mobile-user-info').classList.remove('hidden');
                 authButtons.classList.add('hidden');
                 
                 // Set user avatar if available
@@ -483,17 +493,6 @@
                         userAvatar.src = avatarUrl;
                         userAvatar.style.display = 'block';
                         fallbackIcon.style.display = 'none';
-                        
-                        // Add error handling
-                        userAvatar.onerror = function() {
-                            console.error('Failed to load avatar from:', avatarUrl);
-                            this.style.display = 'none';
-                            fallbackIcon.style.display = 'flex';
-                        };
-                    } else {
-                        console.log('No avatar URL found in user metadata, using fallback icon');
-                        userAvatar.style.display = 'none';
-                        fallbackIcon.style.display = 'flex';
                     }
                 } else {
                     // Try to get avatar from localStorage as fallback
@@ -504,22 +503,9 @@
                             userAvatar.src = storedUser.avatarUrl;
                             userAvatar.style.display = 'block';
                             fallbackIcon.style.display = 'none';
-                            
-                            // Add error handling
-                            userAvatar.onerror = function() {
-                                console.error('Failed to load avatar from localStorage:', storedUser.avatarUrl);
-                                this.style.display = 'none';
-                                fallbackIcon.style.display = 'flex';
-                            };
-                        } else {
-                            console.log('No avatar in localStorage, using fallback icon');
-                            userAvatar.style.display = 'none';
-                            fallbackIcon.style.display = 'flex';
                         }
                     } catch (e) {
                         console.error('Error parsing stored user:', e);
-                        userAvatar.style.display = 'none';
-                        fallbackIcon.style.display = 'flex';
                     }
                 }
             }

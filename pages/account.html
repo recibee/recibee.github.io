@@ -24,6 +24,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
     <!-- Progress Bar -->
@@ -247,12 +250,31 @@
     </main>
 
     <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://pombxhsrmvrtzkaodmni.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWJ4aHNybXZydHprYW9kbW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxODU5OTAsImV4cCI6MjA1ODc2MTk5MH0.vGl9mYqJwmz8htQHhiMDzVymZAgBHOJwBPH5IiJx2g4';
+        
+        let supabaseClient;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized');
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+            // Create a dummy client that won't throw errors when methods are called
+            supabaseClient = {
+                auth: {
+                    getUser: async () => ({ data: {}, error: new Error('Supabase client not initialized') }),
+                    signOut: async () => ({ error: null })
+                }
+            };
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Check if user is logged in
             const userData = JSON.parse(localStorage.getItem('recibee_user'));
             if (!userData) {
                 // Redirect to login if not logged in
-                window.location.href = 'login.html?returnUrl=' + encodeURIComponent(window.location.href);
+                window.location.href = '/pages/login.html?returnUrl=' + encodeURIComponent(window.location.href);
                 return;
             }
             
@@ -287,14 +309,22 @@
             
             // Handle logout
             document.getElementById('logout-button').addEventListener('click', function() {
+                console.log('Logout button clicked');
                 supabaseClient.auth.signOut().then(() => {
+                    console.log('Signed out successfully');
                     // Clear any local storage items
                     localStorage.removeItem('recibee_user');
+                    localStorage.removeItem('sb-access-token');
+                    localStorage.removeItem('sb-refresh-token');
                     // Redirect to login page
                     window.location.href = '/pages/login.html';
                 }).catch(error => {
                     console.error('Error signing out:', error);
-                    alert('Failed to sign out. Please try again.');
+                    // Fallback - just clear localStorage and redirect
+                    localStorage.removeItem('recibee_user');
+                    localStorage.removeItem('sb-access-token');
+                    localStorage.removeItem('sb-refresh-token');
+                    window.location.href = '/pages/login.html';
                 });
             });
             
