@@ -87,22 +87,13 @@
                     <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
                 </div>
                 
-                <!-- Desktop user profile icon - only visible on md screens and up -->
-                <div id="user-info" class="hidden md:block">
+                <!-- User profile icon - responsive for all screens -->
+                <!-- We use one profile icon that works across all screen sizes for simplicity -->
+                <div id="user-info" class="hidden">
                     <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
                         <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
                             <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
                             <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
-                        </div>
-                    </a>
-                </div>
-                
-                <!-- Mobile user profile icon - only visible on small screens -->
-                <div id="mobile-user-info" class="hidden md:hidden">
-                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
-                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="mobile-user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('mobile-fallback-icon').style.display='flex';" />
-                            <i id="mobile-fallback-icon" class="fas fa-user-circle text-primary/70 text-sm" style="display: flex;"></i>
                         </div>
                     </a>
                 </div>
@@ -449,7 +440,6 @@
             if (user) {
                 isLoggedIn = true;
                 userInfo.classList.remove('hidden');
-                document.getElementById('mobile-user-info').classList.remove('hidden');
                 authButtons.classList.add('hidden');
                 
                 // Check if the user is a pro subscriber
@@ -489,22 +479,12 @@
             
             // Update UI based on login state
             if (isLoggedIn) {
-                // Make the appropriate profile icon visible based on screen size
-                // Desktop profile is already handled by md:block class
-                userInfo.classList.remove('hidden');
-                // Mobile profile is handled by md:hidden class
-                document.getElementById('mobile-user-info').classList.remove('hidden');
-                
                 // Hide the auth buttons
                 authButtons.classList.add('hidden');
                 
                 // Set user avatar if available - for desktop
                 const userAvatar = document.getElementById('user-avatar');
                 const fallbackIcon = document.getElementById('fallback-icon');
-                
-                // Set user avatar if available - for mobile
-                const mobileUserAvatar = document.getElementById('mobile-user-avatar');
-                const mobileFallbackIcon = document.getElementById('mobile-fallback-icon');
                 
                 if (user && user.user_metadata) {
                     const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture;
@@ -514,11 +494,6 @@
                         userAvatar.src = avatarUrl;
                         userAvatar.style.display = 'block';
                         fallbackIcon.style.display = 'none';
-                        
-                        // Mobile
-                        mobileUserAvatar.src = avatarUrl;
-                        mobileUserAvatar.style.display = 'block';
-                        mobileFallbackIcon.style.display = 'none';
                     }
                 } else {
                     // Try to get avatar from localStorage as fallback
@@ -530,11 +505,6 @@
                             userAvatar.src = storedUser.avatarUrl;
                             userAvatar.style.display = 'block';
                             fallbackIcon.style.display = 'none';
-                            
-                            // Mobile
-                            mobileUserAvatar.src = storedUser.avatarUrl;
-                            mobileUserAvatar.style.display = 'block';
-                            mobileFallbackIcon.style.display = 'none';
                         }
                     } catch (e) {
                         console.error('Error parsing stored user:', e);
