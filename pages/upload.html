@@ -77,8 +77,12 @@
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
                 <div id="user-info" class="hidden">
-                    <span id="usage-count" class="text-dark mr-3">0/3 Uses</span>
-                    <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
+                    <a href="/pages/account.html" class="flex items-center hover:opacity-75 transition-opacity">
+                        <div id="avatar-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
+                            <img id="user-avatar" src="/assets/icons/default-avatar.png" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <i class="fas fa-user text-primary/70 text-lg sm:text-xl" style="display: none;"></i>
+                        </div>
+                    </a>
                 </div>
             </div>
             <div id="auth-buttons">
@@ -402,7 +406,6 @@
             const browseButton = document.getElementById('browse-button');
             const browseTrigger = document.getElementById('browse-trigger');
             const cancelUpload = document.getElementById('cancel-upload');
-            const usageCount = document.getElementById('usage-count');
             const remainingUses = document.getElementById('remaining-uses');
             const userInfo = document.getElementById('user-info');
             const authButtons = document.getElementById('auth-buttons');
@@ -466,13 +469,40 @@
             
             // Update UI based on usage count
             if (isLoggedIn) {
-                if (isProUser) {
-                    if (usageCount) {
-                        usageCount.textContent = `Pro`;
+                userInfo.classList.remove('hidden');
+                authButtons.classList.add('hidden');
+                
+                // Set user avatar if available
+                const userAvatar = document.getElementById('user-avatar');
+                if (user && user.user_metadata) {
+                    const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture;
+                    if (avatarUrl) {
+                        console.log('Setting user avatar to:', avatarUrl);
+                        userAvatar.src = avatarUrl;
+                        
+                        // Ensure the image loads properly
+                        userAvatar.onload = function() {
+                            console.log('Avatar image loaded successfully');
+                        };
+                        
+                        userAvatar.onerror = function() {
+                            console.error('Failed to load avatar from:', avatarUrl);
+                            this.style.display = 'none';
+                            this.nextElementSibling.style.display = 'flex';
+                        };
+                    } else {
+                        console.log('No avatar URL found in user metadata');
                     }
                 } else {
-                    if (usageCount) {
-                        usageCount.textContent = `${totalUses}/3 Uses`;
+                    // Try to get avatar from localStorage as fallback
+                    try {
+                        const storedUser = JSON.parse(localStorage.getItem('recibee_user'));
+                        if (storedUser && storedUser.avatarUrl) {
+                            console.log('Using avatar from localStorage:', storedUser.avatarUrl);
+                            userAvatar.src = storedUser.avatarUrl;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing stored user:', e);
                     }
                 }
             }
