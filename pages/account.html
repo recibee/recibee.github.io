@@ -42,7 +42,6 @@
                 <a href="/pages/upload.html" class="text-dark hover:text-primary transition-colors font-medium">Upload Ingredients</a>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="usage-count" class="text-dark mr-2 hidden">0/3 Uses</span>
                 <button id="logout-button" class="text-dark hover:text-primary transition-colors">
                     <i class="fas fa-sign-out-alt mr-1"></i> Logout
                 </button>
@@ -309,7 +308,7 @@
             // Handle logout
             document.getElementById('logout-button').addEventListener('click', function() {
                 localStorage.removeItem('recibee_user');
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             });
             
             // Handle upgrade button
