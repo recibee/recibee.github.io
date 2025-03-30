@@ -39,14 +39,24 @@
             <div class="hidden md:flex space-x-6">
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
-                <div id="user-info" class="hidden">
-                    <span id="usage-count" class="text-dark mr-3">0/3 Uses</span>
-                    <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
-                </div>
+                <a href="/pages/upload.html" class="text-dark hover:text-primary transition-colors font-medium">Upload Ingredients</a>
             </div>
-            <div id="auth-buttons">
-                <a href="/pages/signup.html" class="btn-secondary mr-2">Sign Up</a>
-                <a href="/pages/login.html" class="btn-primary">Login</a>
+            <div class="flex items-center">
+                <!-- Auth buttons - shown when logged out -->
+                <div id="auth-buttons">
+                    <a href="/pages/signup.html" class="btn-secondary mr-2">Sign Up</a>
+                    <a href="/pages/login.html" class="btn-primary">Login</a>
+                </div>
+                
+                <!-- User profile icon - shown when logged in -->
+                <div id="user-info" class="hidden">
+                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
+                        <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
+                            <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
+                            <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -240,28 +250,36 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Check if user is logged in
             const userInfo = document.getElementById('user-info');
             const authButtons = document.getElementById('auth-buttons');
-            const usageCount = document.getElementById('usage-count');
             
             let isLoggedIn = false;
-            let totalUses = 0;
-            
-            // Check if user has saved usage data
-            if (localStorage.getItem('recibee_uses')) {
-                totalUses = parseInt(localStorage.getItem('recibee_uses'));
-            }
             
             // Check if user is logged in
-            if (localStorage.getItem('recibee_user')) {
+            const userData = JSON.parse(localStorage.getItem('recibee_user'));
+            if (userData) {
                 isLoggedIn = true;
                 userInfo.classList.remove('hidden');
                 authButtons.classList.add('hidden');
                 
-                // Show usage count for logged in users
-                usageCount.textContent = `${totalUses}/3 Uses`;
+                // Load user avatar
+                try {
+                    const userAvatar = document.getElementById('user-avatar');
+                    const fallbackIcon = document.getElementById('fallback-icon');
+                    
+                    if (userData.avatarUrl) {
+                        console.log('Using avatar from localStorage:', userData.avatarUrl);
+                        userAvatar.src = userData.avatarUrl;
+                        userAvatar.style.display = 'block';
+                        fallbackIcon.style.display = 'none';
+                    } else {
+                        console.log('No avatar found in localStorage, using fallback icon');
+                    }
+                } catch (e) {
+                    console.error('Error setting user avatar:', e);
+                }
             }
             
             // Get recipe ID from URL params
