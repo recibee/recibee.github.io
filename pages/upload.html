@@ -27,6 +27,40 @@
     
     <!-- Supabase JS Library -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Camera UI Styles */
+        .camera-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            height: 100vh;
+        }
+        
+        .camera-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .camera-video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
     <!-- Progress Bar -->
@@ -43,6 +77,7 @@
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
                 <div id="user-info" class="hidden">
+                    <span id="usage-count" class="text-dark mr-3">0/3 Uses</span>
                     <a href="/pages/account.html" class="text-dark hover:text-primary transition-colors font-medium">My Account</a>
                 </div>
             </div>
@@ -197,9 +232,9 @@
         
         // For testing: Reset localStorage
         // Uncomment and run once to clear your usage count
-        localStorage.removeItem('recibee_uses');
-        localStorage.removeItem('recibee_session_id');
-        console.log('LocalStorage reset for testing');
+        // localStorage.removeItem('recibee_uses');
+        // localStorage.removeItem('recibee_session_id');
+        // console.log('LocalStorage reset for testing');
         
         // Generate or retrieve a session ID
         function getSessionId() {
@@ -432,9 +467,13 @@
             // Update UI based on usage count
             if (isLoggedIn) {
                 if (isProUser) {
-                    usageCount.textContent = `Pro`;
+                    if (usageCount) {
+                        usageCount.textContent = `Pro`;
+                    }
                 } else {
-                    usageCount.textContent = `${totalUses}/3 Uses`;
+                    if (usageCount) {
+                        usageCount.textContent = `${totalUses}/3 Uses`;
+                    }
                 }
             }
             
@@ -491,6 +530,7 @@
             // Handle browse button click
             browseButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                console.log('Browse button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
@@ -502,6 +542,7 @@
             // Handle browse trigger text click
             browseTrigger.addEventListener('click', function(e) {
                 e.preventDefault();
+                console.log('Browse trigger clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
@@ -540,6 +581,7 @@
             
             // Handle file selected from input
             function handleFileSelected(e) {
+                console.log('File selected', e.target.files);
                 if (e.target.files && e.target.files[0]) {
                     handleFile(e.target.files[0]);
                 }
@@ -547,6 +589,7 @@
             
             // Process the selected file
             function handleFile(file) {
+                console.log('Processing file:', file.name, file.type, file.size);
                 // Check if user has uses remaining
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
@@ -568,6 +611,7 @@
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
+                    console.log('File loaded successfully');
                     imagePreview.src = event.target.result;
                     uploadPrompt.classList.add('hidden');
                     previewContainer.classList.remove('hidden');
@@ -585,6 +629,7 @@
             // Handle camera button click
             cameraButton.addEventListener('click', async function(e) {
                 e.preventDefault();
+                console.log('Camera button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
                     alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
                     return;
@@ -593,6 +638,7 @@
                 // Check if camera is supported
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     // Fallback for older browsers that don't support getUserMedia
+                    console.log('Camera not supported, falling back to file input with capture');
                     fileUpload.setAttribute('capture', 'environment');
                     fileUpload.click();
                     return;
@@ -600,6 +646,7 @@
                 
                 try {
                     // Request camera access
+                    console.log('Requesting camera access');
                     const stream = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
                             facingMode: 'environment', // Use the back camera if available
@@ -607,6 +654,7 @@
                             height: { ideal: 720 }
                         } 
                     });
+                    console.log('Camera access granted');
                     
                     // Create a video element to display the camera feed
                     const videoElement = document.createElement('video');
@@ -648,7 +696,6 @@
                     // Add capture button
                     const captureBtn = document.createElement('button');
                     captureBtn.className = 'btn-primary w-full py-3 flex items-center justify-center';
-                    captureBtn.style.marginTop = 'auto';
                     captureBtn.innerHTML = '<i class="fas fa-camera mr-2"></i> Capture Photo';
                     
                     // Assemble camera view
@@ -659,9 +706,11 @@
                     // Add to page
                     document.body.appendChild(cameraView);
                     document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    console.log('Camera UI created and displayed');
                     
                     // Handle close button
                     closeBtn.addEventListener('click', function() {
+                        console.log('Camera closed');
                         // Stop video stream
                         stream.getTracks().forEach(track => track.stop());
                         // Remove camera view
@@ -691,13 +740,12 @@
                             // Convert data URL to Blob for potential upload
                             canvas.toBlob(function(blob) {
                                 // Create a File object from the Blob
-                                const capturedFile = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+                                const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
                                 
                                 // Store the file for later processing
-                                // We'll use this when the "Find Recipes" button is clicked
-                                window.capturedImageFile = capturedFile;
+                                window.capturedImageFile = file;
                                 
-                                console.log('Image captured and stored for processing');
+                                console.log('Image captured and ready for processing');
                             }, 'image/jpeg', 0.8);
                             
                             // Stop video stream
@@ -736,6 +784,8 @@
                 findRecipesBtn.disabled = true;
                 findRecipesBtn.classList.add('opacity-50');
                 
+                console.log('Find Recipes button clicked');
+                
                 // Show analyzing status
                 analyzingStatus.classList.remove('hidden');
                 
@@ -749,10 +799,10 @@
                     let fileToProcess = null;
                     if (window.capturedImageFile) {
                         fileToProcess = window.capturedImageFile;
-                        console.log('Using captured image for processing');
+                        console.log('Using captured image for processing:', fileToProcess.name, fileToProcess.size);
                     } else if (fileUpload.files && fileUpload.files[0]) {
                         fileToProcess = fileUpload.files[0];
-                        console.log('Using uploaded file for processing');
+                        console.log('Using uploaded file for processing:', fileToProcess.name, fileToProcess.size);
                     }
                     
                     if (!fileToProcess) {
@@ -760,19 +810,24 @@
                     }
                 
                     // Track the upload in Supabase
+                    console.log('Tracking upload in Supabase');
                     const uploadSuccess = await trackUpload();
                     
                     if (!uploadSuccess) {
                         throw new Error("Failed to track upload. Please try again.");
                     }
                     
+                    console.log('Upload tracked successfully');
+                    
                     // Increment local usage count
                     totalUses++;
                     localStorage.setItem('recibee_uses', totalUses);
+                    console.log('Local usage count updated:', totalUses);
                     
                     // Update remaining uses
                     if (!isProUser) {
                         usesRemaining = Math.max(0, 3 - totalUses);
+                        console.log('Remaining uses updated:', usesRemaining);
                         
                         // Update the displayed remaining uses
                         if (remainingUses) {
@@ -787,9 +842,12 @@
                             } else {
                                 remainingUses.classList.add('text-green-600');
                             }
+                        } else {
+                            console.warn('remainingUses element not found');
                         }
                     }
                     
+                    console.log('Redirecting to recipes page in 2 seconds');
                     // Simulate API call delay (replace with actual API call for ingredient recognition)
                     setTimeout(function() {
                         // Redirect to recipes page
