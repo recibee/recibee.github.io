@@ -106,9 +106,21 @@
     </main>
 
     <!-- Footer -->
-
-    <!-- Footer will be loaded dynamically -->
-    <div id="footer-placeholder"></div>
+    <footer class="bg-dark py-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                    <span class="text-white/70">|</span>
+                    <a href="/pages/report-problem.html" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
     // Progress bar functionality
@@ -126,6 +138,5 @@
     // Initial update
     updateProgressBar();
     </script>
-    <script src="/assets/js/footer-loader.js"></script>
 </body>
 </html> 

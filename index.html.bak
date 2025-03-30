@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>Recibee - Capture Detect Cook</title>
+    <meta name="title" content="Recibee - Detect Cook Serve">
+    <meta name="description" content="Transform your cooking experience with AI-powered recipe suggestions. Snap a picture of your ingredients & get instant recipe suggestions!">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://github.com/recibee/recibee.github.io">
+    <meta property="og:title" content="Recibee - Smart Recipe Detection App">
+    <meta property="og:description" content="Transform your cooking experience with AI-powered recipe suggestions. Snap a picture of your ingredients & get instant recipe suggestions!">
+    <meta property="og:image" content="https://raw.githubusercontent.com/recibee/recibee.github.io/master/public/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://github.com/recibee/recibee.github.io">
+    <meta property="twitter:title" content="Recibee - Smart Recipe Detection App">
+    <meta property="twitter:description" content="Transform your cooking experience with AI-powered recipe suggestions. Snap a picture of your ingredients & get instant recipe suggestions!">
+    <meta property="twitter:image" content="https://raw.githubusercontent.com/recibee/recibee.github.io/master/public/og-image.jpg">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FF8000">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Recibee",
+        "applicationCategory": "FoodAndDrink",
+        "description": "Transform your cooking experience with AI-powered recipe suggestions. Snap a picture of your ingredients & get instant recipe suggestions!",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": [
+            {
+                "@type": "Recipe",
+                "name": "French Toast",
+                "author": {
+                    "@type": "Person",
+                    "name": "Sarah"
+                },
+                "cookTime": "PT10M",
+                "recipeCategory": "Breakfast",
+                "recipeIngredient": ["bread", "eggs", "milk", "vanilla", "cinnamon"],
+                "recipeInstructions": "Golden-brown French toast served with fresh berries and whipped cream, perfect for a delicious breakfast or brunch."
+            },
+            {
+                "@type": "Recipe",
+                "name": "Biryani",
+                "author": {
+                    "@type": "Person",
+                    "name": "Michael"
+                },
+                "cookTime": "PT60M",
+                "recipeCategory": "Main Course",
+                "recipeInstructions": "Fragrant rice, tender meat, and aromatic spices combine in this flavorful and easy-to-make biryani, perfect for a hearty meal."
+            },
+            {
+                "@type": "Recipe",
+                "name": "Fresh Fruit Salad",
+                "author": {
+                    "@type": "Person",
+                    "name": "Emma"
+                },
+                "cookTime": "PT5M",
+                "recipeCategory": "Salad",
+                "recipeInstructions": "A vibrant salad featuring fresh avocado, crisp lettuce, shredded vegetables, and crunchy cashews, topped with a zesty dressing."
+            }
+        ]
+    }
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-H3016VJ914');
+    </script>
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <style>
+        .footer-logo {
+            height: 28px;
+            width: auto;
+        }
+        
+        /* Mobile-specific fixes */
+        @media (max-width: 640px) {
+            .btn-success {
+                padding: 0.5rem 1rem !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.25rem !important;
+                font-size: 0.95rem !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Ensure form elements stack properly on small screens */
+            #waitlistForm {
+                flex-direction: column;
+            }
+            
+            /* Ensure button has proper width on mobile */
+            #waitlistForm button {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+    
+    <!-- Polyfills -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.includes%2CIntersectionObserver%2CPromise%2CObject.assign%2CArray.from%2CArray.prototype.find%2CArray.prototype.findIndex%2CArray.prototype.includes%2CString.prototype.includes%2CString.prototype.startsWith%2CString.prototype.endsWith%2CObject.entries%2CObject.values%2CElement.prototype.closest%2CElement.prototype.matches%2CElement.prototype.remove%2CElement.prototype.classList%2CElement.prototype.scrollIntoView%2CElement.prototype.dataset%2CNodeList.prototype.forEach%2CIntersectionObserver%2CsmoothscrollPolyfill"></script>
+</head>
+<body class="bg-cream">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    <!-- Navigation -->
+    <nav class="bg-white backdrop-blur-sm bg-opacity-95 shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
+                <a href="#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <a href="#pricing" class="text-dark hover:text-primary transition-colors font-medium">Pricing</a>
+                <a href="#waitlist" class="text-dark hover:text-primary transition-colors font-medium">Get Started</a>
+            </div>
+            <a href="/pages/upload.html" class="btn-primary">
+               Try it now!
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-8 md:py-16 bg-light">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 hero-text">
+                    <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6 animate-hero-text">
+                        <span class="text-dark font-medium">🚀 Smart Recipe Detection</span>
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold text-dark mb-6 font-choplin leading-tight animate-hero-text delay-200">
+                        Never miss an <span class="text-primary">ingredient</span> in your kitchen again.
+                    </h1>
+                    <p class="text-dark/70 text-lg mb-8 font-inter max-w-xl animate-hero-text delay-400">
+                        Snap a picture of your ingredients & get instant recipe suggestions! Turn your kitchen into a playground of possibilities.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#waitlist" class="btn-primary text-center">
+                            Get Started Free
+                        </a>
+                        <a href="#waitlist" class="btn-secondary text-center">
+                            Download Soon
+                        </a>
+                    </div>
+                    <div class="mt-8 flex items-center gap-4">
+                        <div class="flex -space-x-2">
+                            <img src="https://randomuser.me/api/portraits/women/1.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="Sarah - Happy Cook" loading="lazy">
+                            <img src="https://randomuser.me/api/portraits/men/1.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="Michael - Food Enthusiast" loading="lazy">
+                            <img src="https://randomuser.me/api/portraits/women/2.jpg" class="w-8 h-8 rounded-full border-2 border-white" alt="Emma - Busy Parent" loading="lazy">
+                        </div>
+                        <p class="text-dark/60 text-sm">Join <span id="cookCounter" class="font-medium">1,900</span>+ happy cooks</p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative" style="height: 680px; width: 320px;">
+                        <div class="absolute -top-4 -left-4 w-24 h-24 bg-primary rounded-2xl -z-10"></div>
+                        <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-cream rounded-2xl -z-10"></div>
+                        <div class="h-full w-full flex items-center justify-center rounded-2xl shadow-2xl relative z-20" style="background-color: transparent; background-image: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.1));">
+                            <img src="/assets/images/mockup-portrait.png" alt="Recibee App Preview" class="object-contain h-full w-full animate-float">
+                        </div>
+                        <div class="absolute -top-5 right-5 notification-card z-30">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-dark text-sm"></i>
+                                </div>
+                                <span class="text-sm font-medium text-dark">8+ ingredients detected</span>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-5 left-5 notification-card z-30">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                    <i class="fas fa-utensils text-dark text-sm"></i>
+                                </div>
+                                <span class="text-sm font-medium text-dark">7-8 recipes found</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">✨ Smart Features</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    Smart Features For Smart Cooking
+                </h2>
+                <p class="text-dark/70 max-w-2xl mx-auto font-inter">
+                    Discover how Recibee transforms your kitchen experience with cutting-edge AI technology and intuitive features.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Card 1 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-lightbulb text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Smart Recipe Suggestions</h3>
+                    <p class="text-dark/70 font-inter">Get personalized recipe recommendations based on your available ingredients and preferences.</p>
+                </div>
+
+                <!-- Feature Card 2 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-clock text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Quick & Easy Recipes</h3>
+                    <p class="text-dark/70 font-inter">Find recipes that match your time constraints, from 5-minute snacks to gourmet meals.</p>
+                </div>
+
+                <!-- Feature Card 3 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-leaf text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Dietary Preferences</h3>
+                    <p class="text-dark/70 font-inter">Filter recipes based on your dietary needs - vegetarian, vegan, gluten-free, and more.</p>
+                </div>
+
+                <!-- Feature Card 4 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-heart text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Favorites & History</h3>
+                    <p class="text-dark/70 font-inter">Save your favorite recipes and track your cooking history for quick access later.</p>
+                </div>
+
+                <!-- Feature Card 5 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-users text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Community Recipes</h3>
+                    <p class="text-dark/70 font-inter">Share and discover recipes from our growing community of home chefs.</p>
+                </div>
+
+                <!-- Feature Card 6 -->
+                <div class="feature-card">
+                    <div class="icon-container">
+                        <i class="fas fa-mobile-alt text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-2 font-choplin">Offline Access</h3>
+                    <p class="text-dark/70 font-inter">Access your saved recipes even without an internet connection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 md:py-24 bg-light">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">🎯 Simple Steps</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    Three Simple Steps
+                </h2>
+                <p class="text-dark/70 max-w-2xl mx-auto font-inter">
+                    Get started with Recibee in just three easy steps. No complex setup required.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="relative">
+                    <div class="step-card relative z-10">
+                        <div>
+                        <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
+                            <span class="text-2xl font-bold text-dark">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-dark mb-4 font-choplin">Take a Photo</h3>
+                        <p class="text-dark/70 font-inter">
+                            Open the app and snap a quick photo of your ingredients. Our AI will do the rest.
+                        </p>
+                        </div>
+                    </div>
+                    <div class="hidden md:block absolute top-1/2 left-full w-24 border-t-2 border-dashed border-primary/30 -translate-y-1/2"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative">
+                    <div class="step-card relative z-10">
+                        <div>
+                        <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
+                            <span class="text-2xl font-bold text-dark">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-dark mb-4 font-choplin">Get Suggestions</h3>
+                        <p class="text-dark/70 font-inter">
+                            Browse through personalized recipe suggestions based on your available ingredients.
+                        </p>
+                        </div>
+                    </div>
+                    <div class="hidden md:block absolute top-1/2 left-full w-24 border-t-2 border-dashed border-primary/30 -translate-y-1/2"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative">
+                    <div class="step-card relative z-10">
+                        <div>
+                        <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
+                            <span class="text-2xl font-bold text-dark">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-dark mb-4 font-choplin">Start Cooking</h3>
+                        <p class="text-dark/70 font-inter">
+                            Follow the step-by-step instructions and create delicious meals with confidence.
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <a href="#waitlist" class="btn-primary inline-flex items-center gap-2">
+                    Get Started Now
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recipes Section -->
+    <section id="recipes" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">🍳 Fresh Ideas</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    Fresh Ideas for Your Kitchen
+                </h2>
+                <p class="text-dark/70 max-w-2xl mx-auto font-inter">
+                    Discover new recipes and cooking inspiration with our AI-powered suggestions.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Recipe Card 1 -->
+                <div class="recipe-card">
+                    <div class="image-container">
+                        <img src="/public/images/french-toast.webp" 
+                             loading="lazy"
+                             alt="Golden-brown French toast topped with fresh berries and whipped cream">
+                    </div>
+                    <div class="content">
+                        <div class="tags-container">
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">5 ingredients</span>
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">10 min</span>
+                            <span class="tag-pill easy px-3 py-1 rounded-md text-sm">Easy</span>
+                        </div>
+                        <h3 class="title">French Toast</h3>
+                        <p class="description">Golden-brown French toast served with fresh berries and whipped cream, perfect for a delicious breakfast or brunch.</p>
+                        <div class="author-section">
+                            <div class="flex items-center gap-2">
+                                <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                <span class="text-sm text-dark/70">By Sarah</span>
+                            </div>
+                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save French Toast recipe">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recipe Card 2 -->
+                <div class="recipe-card">
+                    <div class="image-container">
+                        <img src="/public/images/biryani.webp" 
+                             loading="lazy"
+                             alt="Aromatic chicken biryani with colorful spices and garnish">
+                    </div>
+                    <div class="content">
+                        <div class="tags-container">
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">10 ingredients</span>
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">60 min</span>
+                            <span class="tag-pill medium px-3 py-1 rounded-md text-sm">Medium</span>
+                        </div>
+                        <h3 class="title">Biryani</h3>
+                        <p class="description">Fragrant rice, tender meat, and aromatic spices combine in this flavorful and easy-to-make biryani, perfect for a hearty meal.</p>
+                        <div class="author-section">
+                            <div class="flex items-center gap-2">
+                                <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                <span class="text-sm text-dark/70">By Michael</span>
+                            </div>
+                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save Biryani recipe">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recipe Card 3 -->
+                <div class="recipe-card">
+                    <div class="image-container">
+                        <img src="/public/images/fruit-salad.webp" 
+                             loading="lazy"
+                             alt="Fresh fruit salad with avocado, lettuce, and crunchy cashews">
+                    </div>
+                    <div class="content">
+                        <div class="tags-container">
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">7 ingredients</span>
+                            <span class="bg-cream px-3 py-1 rounded-md text-sm text-dark/70 border border-dark/20">5 min</span>
+                            <span class="tag-pill easy px-3 py-1 rounded-md text-sm">Easy</span>
+                        </div>
+                        <h3 class="title">Fresh Fruit Salad</h3>
+                        <p class="description">A vibrant salad featuring fresh avocado, crisp lettuce, shredded vegetables, and crunchy cashews, topped with a zesty dressing.</p>
+                        <div class="author-section">
+                            <div class="flex items-center gap-2">
+                                <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="Chef" class="w-8 h-8 rounded-full">
+                                <span class="text-sm text-dark/70">By Emma</span>
+                            </div>
+                            <button class="text-primary hover:text-primary/80 transition-colors" aria-label="Save Fruit Salad recipe">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                <a href="#waitlist" class="btn-primary inline-flex items-center gap-2">
+                    Discover More Recipes
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-16 md:py-24 bg-light">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">💬 Testimonials</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    What Our Users Say
+                </h2>
+                <p class="text-dark/70 max-w-2xl mx-auto font-inter">
+                    Join thousands of happy users who have transformed their cooking experience with Recibee.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Sarah Johnson - Home Cook" class="w-12 h-12 rounded-full" loading="lazy">
+                        <div>
+                            <h4 class="font-bold text-dark font-choplin">Sarah Johnson</h4>
+                            <p class="text-dark/60 text-sm">Home Cook</p>
+                        </div>
+                    </div>
+                    <p class="text-dark/70 font-inter mb-6">
+                        "Recibee has completely changed how I cook. No more wasted ingredients or boring meals. The AI suggestions are spot-on!"
+                    </p>
+                    <div class="flex items-center gap-1 text-primary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Michael Chen - Food Enthusiast" class="w-12 h-12 rounded-full" loading="lazy">
+                        <div>
+                            <h4 class="font-bold text-dark font-choplin">Michael Chen</h4>
+                            <p class="text-dark/60 text-sm">Food Enthusiast</p>
+                        </div>
+                    </div>
+                    <p class="text-dark/70 font-inter mb-6">
+                        "The recipe suggestions are incredible. I've discovered so many new dishes I can make with what I already have in my kitchen."
+                    </p>
+                    <div class="flex items-center gap-1 text-primary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimonial-card">
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="https://randomuser.me/api/portraits/women/2.jpg" alt="Emma Davis - Busy Parent" class="w-12 h-12 rounded-full" loading="lazy">
+                        <div>
+                            <h4 class="font-bold text-dark font-choplin">Emma Davis</h4>
+                            <p class="text-dark/60 text-sm">Busy Parent</p>
+                        </div>
+                    </div>
+                    <p class="text-dark/70 font-inter mb-6">
+                        "As a busy mom, Recibee helps me plan meals efficiently and make the most of my grocery shopping. It's a game-changer!"
+                    </p>
+                    <div class="flex items-center gap-1 text-primary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">💳 Pricing</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    Simple, Transparent Pricing
+                </h2>
+                <p class="text-dark/70 max-w-2xl mx-auto font-inter">
+                    Choose the plan that works best for your cooking needs. Start for free, upgrade anytime.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+                <!-- Free Plan -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
+                    <div class="p-6 md:p-8">
+                        <h3 class="text-xl font-bold mb-2">Free</h3>
+                        <div class="mb-6">
+                            <span class="text-3xl font-bold">$0</span>
+                            <span class="text-dark/60">/month</span>
+                        </div>
+                        
+                        <p class="text-dark/70 mb-6">Perfect for casual cooks exploring new recipe ideas</p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>30 ingredient scans per month</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Basic recipe suggestions</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 bg-gray-50">
+                        <a href="/pages/signup.html" class="btn-secondary w-full text-center block">Get Started</a>
+                    </div>
+                </div>
+                
+                <!-- Premium Plan -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden relative border-2 border-primary transition-all hover:shadow-xl hover:-translate-y-1 transform scale-105 z-10">
+                    <div class="absolute top-0 right-0">
+                        <div class="bg-primary text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
+                            Most Popular
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 md:p-8">
+                        <h3 class="text-xl font-bold mb-2">Premium</h3>
+                        <div class="mb-6">
+                            <span class="text-3xl font-bold">$10</span>
+                            <span class="text-dark/60">/month</span>
+                        </div>
+                        
+                        <p class="text-dark/70 mb-6">Ideal for food enthusiasts who cook regularly</p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Up to 500 ingredient scans</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Enhanced recipe suggestions sorted by calories and health rating</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 bg-primary/5">
+                        <a href="/pages/pricing.html" class="btn-primary w-full text-center block">Choose Plan</a>
+                    </div>
+                </div>
+                
+                <!-- Premium Plus Plan -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
+                        <div class="bg-black/5 py-3 px-6 rounded-lg max-w-xs">
+                            <p class="text-dark font-medium text-center">Premium Plus subscription will be available soon</p>
+                        </div>
+                        <div class="mt-6">
+                            <a href="#waitlist" class="inline-flex items-center gap-2 bg-dark text-white py-3 px-6 rounded-md font-medium text-sm hover:bg-dark/90 transition-all shadow-md border border-dark/20">
+                                <i class="fas fa-bell text-primary"></i>
+                                Get Notified
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute top-0 right-0 z-10">
+                        <div class="bg-dark text-white py-1 px-4 rounded-bl-lg font-medium text-sm">
+                            Advanced
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 filter blur-[1px]">
+                        <h3 class="text-xl font-bold mb-2">Premium Plus</h3>
+                        <div class="mb-6">
+                            <span class="text-3xl font-bold">$19.99</span>
+                            <span class="text-dark/60">/month</span>
+                        </div>
+                        
+                        <p class="text-dark/70 mb-6">The ultimate package for culinary enthusiasts</p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Everything in Premium</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Access to Recibee Premium</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>Monthly chef consultation</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 md:p-8 bg-gray-50 filter blur-[1px]">
+                        <a href="#" class="btn-secondary w-full text-center block cursor-not-allowed opacity-70">Coming Soon</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 text-center">
+                <a href="/pages/pricing.html" class="inline-flex items-center gap-2 text-primary hover:text-primary-dark transition-colors">
+                    View full pricing details
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waitlist Section -->
+    <section id="waitlist" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-primary/5"></div>
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="text-center mb-12">
+                <div class="inline-block bg-cream px-4 py-2 rounded-full mb-6">
+                    <span class="text-dark font-medium">🚀 Early Access</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-6 font-choplin">
+                    Be the First to Experience Recibee
+                </h2>
+                <p class="text-dark/70 mb-8 font-inter max-w-2xl mx-auto">
+                    Join our waitlist today and get early access to the future of smart cooking. Plus, receive exclusive recipes and cooking tips!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Benefit 1 -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
+                        <i class="fas fa-bolt text-dark text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-dark mb-2 font-choplin">Early Access</h4>
+                        <p class="text-dark/70 text-sm font-inter">Be among the first to try our revolutionary cooking app.</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
+                        <i class="fas fa-gift text-dark text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-dark mb-2 font-choplin">Exclusive Content</h4>
+                        <p class="text-dark/70 text-sm font-inter">Get special recipes and cooking tips delivered to your inbox.</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
+                        <i class="fas fa-percent text-dark text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-dark mb-2 font-choplin">Special Discount</h4>
+                        <p class="text-dark/70 text-sm font-inter">Enjoy premium features at a discounted price at launch.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-2xl mx-auto">
+                <div class="waitlist-card">
+                    <form id="waitlistForm" class="flex flex-col sm:flex-row gap-4">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            placeholder="Enter your email address" 
+                            class="flex-grow px-4 py-3 rounded text-dark border border-dark/10 focus:outline-none focus:ring-2 focus:ring-primary bg-light font-inter"
+                            required
+                        >
+                        <button 
+                            type="submit" 
+                            class="btn-primary rounded-md whitespace-nowrap px-6 py-3"
+                        >
+                            Join Waitlist
+                        </button>
+                    </form>
+                    <div id="formStatus" class="mt-4 text-center hidden">
+                        <p id="errorMessage" class="text-red-500 font-inter hidden">Oops! Something went wrong. Please try again.</p>
+                    </div>
+                    <p class="mt-4 text-dark/60 text-sm font-inter text-center">
+                        By joining, you agree to receive updates about Recibee. No spam, ever.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark py-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center">
+                <p class="text-white/70 text-sm">Copyright © Recibee</p>
+                <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
+                <div class="mt-4 flex justify-center flex-wrap">
+                    <a href="/pages/terms-of-service.html" class="text-white/70 text-sm mx-1 sm:mx-2 whitespace-nowrap hover:text-white transition-colors">Terms of Service</a>
+                    <span class="text-white/70 mx-1">|</span>
+                    <a href="/pages/privacy-policy.html" class="text-white/70 text-sm mx-1 sm:mx-2 whitespace-nowrap hover:text-white transition-colors">Privacy Policy</a>
+                    <span class="text-white/70 mx-1">|</span>
+                    <a href="/pages/report-problem.html" class="text-white/70 text-sm mx-1 sm:mx-2 whitespace-nowrap hover:text-white transition-colors">Report a Problem</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/assets/js/script.js"></script>
+</body>
+</html> 

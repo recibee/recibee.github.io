@@ -298,8 +298,5 @@
             });
         });
     </script>
-    <!-- Footer will be loaded dynamically -->
-    <div id="footer-placeholder"></div>
-    <script src="/assets/js/footer-loader.js"></script>
 </body>
 </html> 
