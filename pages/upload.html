@@ -246,12 +246,6 @@
             };
         }
         
-        // For testing: Reset localStorage
-        // Uncomment and run once to clear your usage count
-        localStorage.removeItem('recibee_uses');
-        localStorage.removeItem('recibee_session_id');
-        console.log('LocalStorage reset for testing');
-        
         // Generate or retrieve a session ID
         function getSessionId() {
             // Check if we already have a session ID in localStorage
@@ -270,6 +264,7 @@
         async function trackUpload() {
             const sessionId = getSessionId();
             let userId = null;
+            let user = null;
             
             try {
                 // Check if user is logged in
@@ -279,14 +274,36 @@
                     // Continue as anonymous user instead of throwing
                 } else if (data && data.user) {
                     userId = data.user.id;
+                    user = data.user;
                     console.log('User authenticated:', userId);
+                    
+                    // For logged-in users, check if they're pro
+                    if (isUserPro(user)) {
+                        console.log('Pro user, no need to track uploads');
+                        return true; // Pro users don't need tracking
+                    }
+                    
+                    // Check current count in metadata
+                    let currentCount = getUploadCountFromMetadata(user);
+                    if (currentCount !== null) {
+                        // Increment metadata count by 1
+                        const newCount = currentCount + 1;
+                        console.log(`Updating metadata count from ${currentCount} to ${newCount}`);
+                        const metadataUpdated = await updateUserUploadCount(user, newCount);
+                        
+                        if (metadataUpdated) {
+                            console.log('User metadata successfully updated with new count');
+                        } else {
+                            console.warn('Failed to update user metadata, will still try database tracking');
+                        }
+                    }
                 } else {
                     console.log('Anonymous session:', sessionId);
                 }
                 
                 console.log('Inserting upload record with:', { sessionId, userId });
                 
-                // Record the upload in Supabase
+                // Record the upload in Supabase database
                 const { data: uploadData, error: uploadError } = await supabaseClient
                     .from('uploads')
                     .insert([
@@ -300,6 +317,13 @@
                     
                 if (uploadError) {
                     console.error('Supabase insert error:', uploadError);
+                    
+                    // Even if database insert fails, if we updated metadata for a logged-in user, consider it a success
+                    if (user && getUploadCountFromMetadata(user) !== null) {
+                        console.log('Database insert failed but metadata was updated, considering successful');
+                        return true;
+                    }
+                    
                     // Fallback to local tracking if Supabase fails
                     let localUses = 0;
                     if (localStorage.getItem('recibee_uses')) {
@@ -308,6 +332,23 @@
                     localStorage.setItem('recibee_uses', localUses + 1);
                     console.log('Fallback to local tracking due to Supabase error');
                     return true; // Return true so user can still use the app
+                }
+                
+                // If metadata wasn't updated earlier, try to update it now using the database count
+                if (user && getUploadCountFromMetadata(user) === null) {
+                    try {
+                        const { count, error: countError } = await supabaseClient
+                            .from('uploads')
+                            .select('*', { count: 'exact' })
+                            .eq('user_id', userId);
+                            
+                        if (!countError && count > 0) {
+                            console.log(`Updating user metadata with count from database: ${count}`);
+                            await updateUserUploadCount(user, count);
+                        }
+                    } catch (countErr) {
+                        console.error('Error getting count for metadata update:', countErr);
+                    }
                 }
                 
                 console.log('Upload tracked successfully:', uploadData);
@@ -340,33 +381,21 @@
                 } else if (data && data.user) {
                     userId = data.user.id;
                     
-                    // For logged-in users, check if they are pro
-                    try {
-                        const { data: subscription, error: subError } = await supabaseClient
-                            .from('subscriptions')
-                            .select('is_active')
-                            .eq('user_id', userId)
-                            .single();
-                        
-                        if (subError) {
-                            console.error('Error checking subscription:', subError);
-                            if (subError.code === '42501' || subError.message?.includes('permission denied')) {
-                                console.log('Permission denied, using local data');
-                                // Use localStorage when permission is denied
-                                if (localStorage.getItem('recibee_uses')) {
-                                    return parseInt(localStorage.getItem('recibee_uses'));
-                                }
-                                return 0;
-                            }
-                        } else if (subscription && subscription.is_active) {
-                            // If they're a pro user, they have unlimited uploads
-                            return 0; // Returning 0 means they haven't used any of their limited uploads
-                        }
-                    } catch (subErr) {
-                        console.error('Error in subscription check:', subErr);
+                    // Check if user is pro
+                    if (isUserPro(data.user)) {
+                        console.log('Pro user detected in getUploadCount');
+                        return 0; // Pro users have unlimited uploads
                     }
                     
-                    // For non-pro users, get their personal upload count
+                    // Check for upload count in user metadata first (most reliable source)
+                    const metadataCount = getUploadCountFromMetadata(data.user);
+                    if (metadataCount !== null) {
+                        console.log(`Using count from user metadata: ${metadataCount}`);
+                        return metadataCount;
+                    }
+                    
+                    // If no metadata count, fall back to database count
+                    // For non-pro users, get their personal upload count from database
                     try {
                         const { data: userData, count, error: countError } = await supabaseClient
                             .from('uploads')
@@ -375,15 +404,21 @@
                             
                         if (countError) {
                             console.error('Error getting user upload count:', countError);
-                            // Use localStorage when we can't get the count
-                            if (localStorage.getItem('recibee_uses')) {
-                                return parseInt(localStorage.getItem('recibee_uses'));
-                            }
+                            // Try to get uploads by session ID as fallback
+                            console.log('Falling back to session ID lookup');
                         } else {
+                            console.log(`Found ${count || 0} uploads for user ID ${userId} in database`);
+                            
+                            // Update user metadata with this count for future reference
+                            if (count > 0) {
+                                updateUserUploadCount(data.user, count);
+                            }
+                            
                             return count || 0;
                         }
                     } catch (countErr) {
                         console.error('Exception getting user upload count:', countErr);
+                        // Continue to session ID lookup as fallback
                     }
                 }
                 
@@ -397,6 +432,7 @@
                     if (sessionError) {
                         console.error('Error getting session upload count:', sessionError);
                     } else {
+                        console.log(`Found ${count || 0} uploads for session ID ${sessionId}`);
                         return count || 0;
                     }
                 } catch (sessionErr) {
@@ -405,9 +441,12 @@
                 
                 // Fallback to localStorage count if everything else fails
                 if (localStorage.getItem('recibee_uses')) {
-                    return parseInt(localStorage.getItem('recibee_uses'));
+                    const localCount = parseInt(localStorage.getItem('recibee_uses'));
+                    console.log(`Using localStorage fallback count: ${localCount}`);
+                    return localCount;
                 }
                 
+                console.log('No uploads found and no localStorage data, returning 0');
                 return 0;
             } catch (e) {
                 console.error('Major error in getUploadCount:', e);
@@ -418,6 +457,105 @@
                 return 0;
             }
         }
+        
+        // Helper function to check if a user is pro based on metadata
+        function isUserPro(user) {
+            if (!user) return false;
+            
+            try {
+                // Check metadata for pro status
+                if (user.user_metadata && user.user_metadata.is_pro === true) {
+                    return true;
+                }
+                
+                // You could also check app_metadata if that's where you store subscription info
+                if (user.app_metadata && user.app_metadata.is_pro === true) {
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error checking pro status:', error);
+                return false;
+            }
+        }
+        
+        // Helper function to get upload count from user metadata
+        function getUploadCountFromMetadata(user) {
+            if (!user) return null;
+            
+            try {
+                if (user.user_metadata && typeof user.user_metadata.upload_count === 'number') {
+                    console.log(`Found upload count in metadata: ${user.user_metadata.upload_count}`);
+                    return user.user_metadata.upload_count;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error getting upload count from metadata:', error);
+                return null;
+            }
+        }
+        
+        // Update the user's metadata with the new upload count
+        async function updateUserUploadCount(user, newCount) {
+            if (!user) return false;
+            
+            try {
+                console.log(`Updating user metadata with new upload count: ${newCount}`);
+                
+                // Get current metadata
+                const currentMetadata = user.user_metadata || {};
+                
+                // Update the upload count in the metadata
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    data: {
+                        ...currentMetadata,
+                        upload_count: newCount
+                    }
+                });
+                
+                if (error) {
+                    console.error('Error updating user metadata:', error);
+                    return false;
+                }
+                
+                console.log('User metadata updated successfully');
+                return true;
+            } catch (error) {
+                console.error('Exception in updateUserUploadCount:', error);
+                return false;
+            }
+        }
+        
+        /*
+        * HOW TO SET USER PRO STATUS IN SUPABASE:
+        * 
+        * When a user upgrades to Pro, you need to update their metadata.
+        * You can do this using the admin API in your backend:
+        *
+        * 1. Create a secure backend API endpoint (Node.js, etc.) that:
+        *    - Verifies payment/subscription
+        *    - Calls Supabase admin API to update user metadata
+        *
+        * 2. Sample code for your backend:
+        *    ```
+        *    const { createClient } = require('@supabase/supabase-js')
+        *    
+        *    // Initialize with service role key (keep this secure on your server)
+        *    const supabase = createClient(
+        *      'https://your-project.supabase.co',
+        *      'your-service-role-key'
+        *    )
+        *    
+        *    // Update user metadata to set pro status
+        *    const { data, error } = await supabase.auth.admin.updateUserById(
+        *      'user-uuid-here',
+        *      { user_metadata: { is_pro: true } }
+        *    )
+        *    ```
+        *
+        * 3. NEVER run this code in the browser - only on your secure backend
+        */
         
         document.addEventListener('DOMContentLoaded', async function() {
             // DOM Elements
@@ -458,15 +596,18 @@
                 
                 // Check if the user is a pro subscriber
                 try {
-                    const { data: subscription } = await supabaseClient
-                        .from('subscriptions')
-                        .select('is_active')
-                        .eq('user_id', user.id)
-                        .single();
+                    // Instead of directly accessing the subscriptions table which might have permission issues,
+                    // check for pro status in user metadata
+                    isProUser = isUserPro(user);
                     
-                    isProUser = subscription && subscription.is_active;
+                    if (isProUser) {
+                        console.log('Pro user detected via metadata');
+                    } else {
+                        console.log('User treated as regular free user');
+                    }
                 } catch (error) {
                     console.error('Error checking pro status:', error);
+                    isProUser = false; // Default to free user if there's an exception
                 }
             }
             
@@ -958,13 +1099,36 @@
                     
                     console.log('Upload tracked successfully');
                     
-                    // Increment local usage count
+                    // Refresh the current user object to get updated metadata
+                    let updatedUser = null;
+                    if (isLoggedIn) {
+                        try {
+                            const { data, error } = await supabaseClient.auth.getUser();
+                            if (!error && data && data.user) {
+                                updatedUser = data.user;
+                                console.log('Retrieved updated user data');
+                            }
+                        } catch (userErr) {
+                            console.error('Error refreshing user data:', userErr);
+                        }
+                    }
+                    
+                    // Increment local usage count - this serves as a backup
                     totalUses++;
                     localStorage.setItem('recibee_uses', totalUses);
                     console.log('Local usage count updated:', totalUses);
                     
                     // Update remaining uses
                     if (!isProUser) {
+                        // If we have updated user metadata, use that
+                        if (updatedUser) {
+                            const metadataCount = getUploadCountFromMetadata(updatedUser);
+                            if (metadataCount !== null) {
+                                totalUses = metadataCount; // Use the metadata count as the source of truth
+                                console.log(`Updated total uses from metadata: ${totalUses}`);
+                            }
+                        }
+                        
                         const maxUses = isLoggedIn ? 30 : 3;
                         usesRemaining = Math.max(0, maxUses - totalUses);
                         console.log('Remaining uses updated:', usesRemaining);
