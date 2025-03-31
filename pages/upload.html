@@ -24,9 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Supabase JS Library -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
     
     <style>
         /* Camera UI Styles */
@@ -71,6 +69,41 @@
             margin-top: auto;
             z-index: 1000;
         }
+        
+        /* Card hover animations */
+        .animated-card {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .animated-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .animated-card .icon-container {
+            transition: all 0.3s ease;
+        }
+        
+        .animated-card:hover .icon-container {
+            transform: scale(1.1);
+            background-color: rgba(255, 128, 0, 0.3);
+        }
+        
+        .animated-card:hover h3 {
+            color: #ff8000;
+        }
+        
+        /* Usage tracker animation */
+        .usage-tracker {
+            transition: all 0.3s ease;
+        }
+        
+        .usage-tracker:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
@@ -89,25 +122,13 @@
             <div class="hidden md:flex items-center space-x-6">
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
+                <a href="/index.html#testimonials" class="text-dark hover:text-primary transition-colors font-medium">Testimonials</a>
+                <a href="/pages/pricing.html" class="text-dark hover:text-primary transition-colors font-medium">Pricing</a>
             </div>
             
-            <!-- Right side (auth/profile) -->
-            <div class="flex items-center">
-                <!-- Auth buttons -->
-                <div id="auth-buttons">
-                    <a href="/pages/login.html" class="btn-secondary mr-2">Sign In</a>
-                </div>
-                
-                <!-- User profile icon - responsive for all screens -->
-                <!-- We use one profile icon that works across all screen sizes for simplicity -->
-                <div id="user-info" class="hidden">
-                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
-                        <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
-                            <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
-                        </div>
-                    </a>
-                </div>
+            <!-- Mobile only buttons -->
+            <div class="block md:hidden">
+                <a href="/index.html#waitlist" class="btn-secondary" style="background-color: #ff8000; border-color: #ff8000; color: white;">Get Notified</a>
             </div>
         </div>
     </nav>
@@ -130,24 +151,24 @@
                             
                             <div id="instructions" class="mb-8">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                    <div class="bg-cream rounded-lg p-4 text-center">
-                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <div class="bg-cream rounded-lg p-4 text-center animated-card">
+                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 icon-container">
                                             <i class="fas fa-camera text-primary text-xl"></i>
                                         </div>
                                         <h3 class="font-semibold mb-1">Take a Photo</h3>
                                         <p class="text-dark/70 text-sm">Snap a clear picture of all your ingredients</p>
                     </div>
                     
-                                    <div class="bg-cream rounded-lg p-4 text-center">
-                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <div class="bg-cream rounded-lg p-4 text-center animated-card">
+                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 icon-container">
                                             <i class="fas fa-magic text-primary text-xl"></i>
                                         </div>
                                         <h3 class="font-semibold mb-1">AI Detection</h3>
                                         <p class="text-dark/70 text-sm">Our AI identifies each ingredient automatically</p>
                         </div>
                         
-                                    <div class="bg-cream rounded-lg p-4 text-center">
-                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <div class="bg-cream rounded-lg p-4 text-center animated-card">
+                                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 icon-container">
                                             <i class="fas fa-utensils text-primary text-xl"></i>
                                         </div>
                                         <h3 class="font-semibold mb-1">Get Recipes</h3>
@@ -156,16 +177,16 @@
                                 </div>
                             </div>
                             
-                            <div id="usage-tracker" class="mb-6 bg-cream p-4 rounded-lg">
+                            <div id="usage-tracker" class="mb-6 bg-cream p-4 rounded-lg usage-tracker">
                                 <div class="flex flex-col sm:flex-row items-center justify-between">
                                     <div class="mb-4 sm:mb-0">
                                         <h3 class="font-semibold">Free Usage</h3>
                                         <p class="text-dark/70 text-sm">
-                                            <span id="login-status-msg">Login to get 30 uploads</span> • 
+                                            <span id="login-status-msg">3 free uploads available</span> • 
                                             Remaining uses: <span id="remaining-uses" class="font-medium">3/3</span>
                                         </p>
                                     </div>
-                                    <a href="/pages/pricing.html" class="btn-secondary text-sm px-4 py-2">Upgrade to Pro</a>
+                                    <a href="/index.html#waitlist" class="btn-secondary text-sm px-4 py-2" style="background-color: #ff8000; border-color: #ff8000; color: white;">Get Notified</a>
                                 </div>
                             </div>
                             
@@ -221,32 +242,7 @@
     <div id="footer-placeholder"></div>
 
     <script>
-        // Initialize Supabase client
-        const SUPABASE_URL = 'https://pombxhsrmvrtzkaodmni.supabase.co'; // Replace with your actual Supabase URL from Project Settings > API
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWJ4aHNybXZydHprYW9kbW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxODU5OTAsImV4cCI6MjA1ODc2MTk5MH0.vGl9mYqJwmz8htQHhiMDzVymZAgBHOJwBPH5IiJx2g4'; // Replace with your actual Supabase anon key from Project Settings > API
-        
-        let supabaseClient;
-        try {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase client initialized');
-        } catch (error) {
-            console.error('Failed to initialize Supabase client:', error);
-            // Create a dummy client that won't throw errors when methods are called
-            supabaseClient = {
-                auth: {
-                    getUser: async () => ({ data: {}, error: new Error('Supabase client not initialized') })
-                },
-                from: () => ({
-                    select: () => ({
-                        eq: () => ({ single: () => ({ data: null, error: new Error('Supabase client not initialized') }) }),
-                        limit: () => ({ data: [], error: new Error('Supabase client not initialized') })
-                    }),
-                    insert: () => ({ data: null, error: new Error('Supabase client not initialized') })
-                })
-            };
-        }
-        
-        // Generate or retrieve a session ID
+        // Initialize session variables
         function getSessionId() {
             // Check if we already have a session ID in localStorage
             let sessionId = localStorage.getItem('recibee_session_id');
@@ -260,304 +256,7 @@
             return sessionId;
         }
         
-        // Track an upload in Supabase
-        async function trackUpload() {
-            const sessionId = getSessionId();
-            let userId = null;
-            let user = null;
-            
-            try {
-                // Check if user is logged in
-                const { data, error: authError } = await supabaseClient.auth.getUser();
-                if (authError) {
-                    console.error('Auth error:', authError);
-                    // Continue as anonymous user instead of throwing
-                } else if (data && data.user) {
-                    userId = data.user.id;
-                    user = data.user;
-                    console.log('User authenticated:', userId);
-                    
-                    // For logged-in users, check if they're pro
-                    if (isUserPro(user)) {
-                        console.log('Pro user, no need to track uploads');
-                        return true; // Pro users don't need tracking
-                    }
-                    
-                    // Check current count in metadata
-                    let currentCount = getUploadCountFromMetadata(user);
-                    if (currentCount !== null) {
-                        // Increment metadata count by 1
-                        const newCount = currentCount + 1;
-                        console.log(`Updating metadata count from ${currentCount} to ${newCount}`);
-                        const metadataUpdated = await updateUserUploadCount(user, newCount);
-                        
-                        if (metadataUpdated) {
-                            console.log('User metadata successfully updated with new count');
-                        } else {
-                            console.warn('Failed to update user metadata, will still try database tracking');
-                        }
-                    }
-                } else {
-                    console.log('Anonymous session:', sessionId);
-                }
-                
-                console.log('Inserting upload record with:', { sessionId, userId });
-                
-                // Record the upload in Supabase database
-                const { data: uploadData, error: uploadError } = await supabaseClient
-                    .from('uploads')
-                    .insert([
-                        { 
-                            session_id: sessionId, 
-                            user_id: userId,
-                            timestamp: new Date().toISOString(),
-                            status: 'processed' // Make sure this matches your table schema
-                        }
-                    ]);
-                    
-                if (uploadError) {
-                    console.error('Supabase insert error:', uploadError);
-                    
-                    // Even if database insert fails, if we updated metadata for a logged-in user, consider it a success
-                    if (user && getUploadCountFromMetadata(user) !== null) {
-                        console.log('Database insert failed but metadata was updated, considering successful');
-                        return true;
-                    }
-                    
-                    // Fallback to local tracking if Supabase fails
-                    let localUses = 0;
-                    if (localStorage.getItem('recibee_uses')) {
-                        localUses = parseInt(localStorage.getItem('recibee_uses'));
-                    }
-                    localStorage.setItem('recibee_uses', localUses + 1);
-                    console.log('Fallback to local tracking due to Supabase error');
-                    return true; // Return true so user can still use the app
-                }
-                
-                // If metadata wasn't updated earlier, try to update it now using the database count
-                if (user && getUploadCountFromMetadata(user) === null) {
-                    try {
-                        const { count, error: countError } = await supabaseClient
-                            .from('uploads')
-                            .select('*', { count: 'exact' })
-                            .eq('user_id', userId);
-                            
-                        if (!countError && count > 0) {
-                            console.log(`Updating user metadata with count from database: ${count}`);
-                            await updateUserUploadCount(user, count);
-                        }
-                    } catch (countErr) {
-                        console.error('Error getting count for metadata update:', countErr);
-                    }
-                }
-                
-                console.log('Upload tracked successfully:', uploadData);
-                return true;
-            } catch (error) {
-                console.error('Error tracking upload:', error);
-                // Fallback to local tracking if function fails completely
-                let localUses = 0;
-                if (localStorage.getItem('recibee_uses')) {
-                    localUses = parseInt(localStorage.getItem('recibee_uses'));
-                }
-                localStorage.setItem('recibee_uses', localUses + 1);
-                console.log('Fallback to local tracking due to exception');
-                return true; // Return true so user can still use the app
-            }
-        }
-        
-        // Get number of uploads from Supabase
-        async function getUploadCount() {
-            const sessionId = getSessionId();
-            let userId = null;
-            
-            try {
-                // Check if user is logged in
-                const { data, error: authError } = await supabaseClient.auth.getUser();
-                
-                if (authError) {
-                    console.error('Auth error:', authError);
-                    // Continue with sessionId only
-                } else if (data && data.user) {
-                    userId = data.user.id;
-                    
-                    // Check if user is pro
-                    if (isUserPro(data.user)) {
-                        console.log('Pro user detected in getUploadCount');
-                        return 0; // Pro users have unlimited uploads
-                    }
-                    
-                    // Check for upload count in user metadata first (most reliable source)
-                    const metadataCount = getUploadCountFromMetadata(data.user);
-                    if (metadataCount !== null) {
-                        console.log(`Using count from user metadata: ${metadataCount}`);
-                        return metadataCount;
-                    }
-                    
-                    // If no metadata count, fall back to database count
-                    // For non-pro users, get their personal upload count from database
-                    try {
-                        const { data: userData, count, error: countError } = await supabaseClient
-                            .from('uploads')
-                            .select('*', { count: 'exact' })
-                            .eq('user_id', userId);
-                            
-                        if (countError) {
-                            console.error('Error getting user upload count:', countError);
-                            // Try to get uploads by session ID as fallback
-                            console.log('Falling back to session ID lookup');
-                        } else {
-                            console.log(`Found ${count || 0} uploads for user ID ${userId} in database`);
-                            
-                            // Update user metadata with this count for future reference
-                            if (count > 0) {
-                                updateUserUploadCount(data.user, count);
-                            }
-                            
-                            return count || 0;
-                        }
-                    } catch (countErr) {
-                        console.error('Exception getting user upload count:', countErr);
-                        // Continue to session ID lookup as fallback
-                    }
-                }
-                
-                // For non-logged in users or if other methods fail, check by session ID
-                try {
-                    const { data: sessionData, count, error: sessionError } = await supabaseClient
-                        .from('uploads')
-                        .select('*', { count: 'exact' })
-                        .eq('session_id', sessionId);
-                        
-                    if (sessionError) {
-                        console.error('Error getting session upload count:', sessionError);
-                    } else {
-                        console.log(`Found ${count || 0} uploads for session ID ${sessionId}`);
-                        return count || 0;
-                    }
-                } catch (sessionErr) {
-                    console.error('Exception getting session upload count:', sessionErr);
-                }
-                
-                // Fallback to localStorage count if everything else fails
-                if (localStorage.getItem('recibee_uses')) {
-                    const localCount = parseInt(localStorage.getItem('recibee_uses'));
-                    console.log(`Using localStorage fallback count: ${localCount}`);
-                    return localCount;
-                }
-                
-                console.log('No uploads found and no localStorage data, returning 0');
-                return 0;
-            } catch (e) {
-                console.error('Major error in getUploadCount:', e);
-                // Fallback to localStorage count
-                if (localStorage.getItem('recibee_uses')) {
-                    return parseInt(localStorage.getItem('recibee_uses'));
-                }
-                return 0;
-            }
-        }
-        
-        // Helper function to check if a user is pro based on metadata
-        function isUserPro(user) {
-            if (!user) return false;
-            
-            try {
-                // Check metadata for pro status
-                if (user.user_metadata && user.user_metadata.is_pro === true) {
-                    return true;
-                }
-                
-                // You could also check app_metadata if that's where you store subscription info
-                if (user.app_metadata && user.app_metadata.is_pro === true) {
-                    return true;
-                }
-                
-                return false;
-            } catch (error) {
-                console.error('Error checking pro status:', error);
-                return false;
-            }
-        }
-        
-        // Helper function to get upload count from user metadata
-        function getUploadCountFromMetadata(user) {
-            if (!user) return null;
-            
-            try {
-                if (user.user_metadata && typeof user.user_metadata.upload_count === 'number') {
-                    console.log(`Found upload count in metadata: ${user.user_metadata.upload_count}`);
-                    return user.user_metadata.upload_count;
-                }
-                return null;
-            } catch (error) {
-                console.error('Error getting upload count from metadata:', error);
-                return null;
-            }
-        }
-        
-        // Update the user's metadata with the new upload count
-        async function updateUserUploadCount(user, newCount) {
-            if (!user) return false;
-            
-            try {
-                console.log(`Updating user metadata with new upload count: ${newCount}`);
-                
-                // Get current metadata
-                const currentMetadata = user.user_metadata || {};
-                
-                // Update the upload count in the metadata
-                const { data, error } = await supabaseClient.auth.updateUser({
-                    data: {
-                        ...currentMetadata,
-                        upload_count: newCount
-                    }
-                });
-                
-                if (error) {
-                    console.error('Error updating user metadata:', error);
-                    return false;
-                }
-                
-                console.log('User metadata updated successfully');
-                return true;
-            } catch (error) {
-                console.error('Exception in updateUserUploadCount:', error);
-                return false;
-            }
-        }
-        
-        /*
-        * HOW TO SET USER PRO STATUS IN SUPABASE:
-        * 
-        * When a user upgrades to Pro, you need to update their metadata.
-        * You can do this using the admin API in your backend:
-        *
-        * 1. Create a secure backend API endpoint (Node.js, etc.) that:
-        *    - Verifies payment/subscription
-        *    - Calls Supabase admin API to update user metadata
-        *
-        * 2. Sample code for your backend:
-        *    ```
-        *    const { createClient } = require('@supabase/supabase-js')
-        *    
-        *    // Initialize with service role key (keep this secure on your server)
-        *    const supabase = createClient(
-        *      'https://your-project.supabase.co',
-        *      'your-service-role-key'
-        *    )
-        *    
-        *    // Update user metadata to set pro status
-        *    const { data, error } = await supabase.auth.admin.updateUserById(
-        *      'user-uuid-here',
-        *      { user_metadata: { is_pro: true } }
-        *    )
-        *    ```
-        *
-        * 3. NEVER run this code in the browser - only on your secure backend
-        */
-        
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const fileUpload = document.getElementById('file-upload');
             const uploadContainer = document.getElementById('upload-container');
@@ -569,130 +268,26 @@
             const browseTrigger = document.getElementById('browse-trigger');
             const cancelUpload = document.getElementById('cancel-upload');
             const remainingUses = document.getElementById('remaining-uses');
-            const userInfo = document.getElementById('user-info');
-            const authButtons = document.getElementById('auth-buttons');
             const analyzingStatus = document.getElementById('analyzing-status');
             const findRecipesBtn = document.getElementById('find-recipes');
             
-            // Load usage count from both localStorage and Supabase
-            let localUses = 0;
-            let supabaseUses = 0;
+            // Set default usage limits
             let totalUses = 0;
             let usesRemaining = 3;
-            let isLoggedIn = false;
-            let isProUser = false;
             
             // Check if user has saved usage data in localStorage
             if (localStorage.getItem('recibee_uses')) {
-                localUses = parseInt(localStorage.getItem('recibee_uses'));
+                totalUses = parseInt(localStorage.getItem('recibee_uses'));
             }
             
-            // Check if user is logged in
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                isLoggedIn = true;
-                userInfo.classList.remove('hidden');
-                authButtons.classList.add('hidden');
-                
-                // Check if the user is a pro subscriber
-                try {
-                    // Instead of directly accessing the subscriptions table which might have permission issues,
-                    // check for pro status in user metadata
-                    isProUser = isUserPro(user);
-                    
-                    if (isProUser) {
-                        console.log('Pro user detected via metadata');
-                    } else {
-                        console.log('User treated as regular free user');
-                    }
-                } catch (error) {
-                    console.error('Error checking pro status:', error);
-                    isProUser = false; // Default to free user if there's an exception
-                }
-            }
-            
-            // Get upload count from Supabase
-            try {
-                supabaseUses = await getUploadCount();
-            } catch (error) {
-                console.error('Error retrieving Supabase upload count:', error);
-                supabaseUses = 0;
-            }
-            
-            // Use the highest count between localStorage and Supabase to prevent bypassing
-            totalUses = Math.max(localUses, supabaseUses);
-            
-            // Save the reconciled count back to localStorage
-            localStorage.setItem('recibee_uses', totalUses);
-            
-            // Calculate remaining uses (Pro users have unlimited)
-            if (isProUser) {
-                usesRemaining = Infinity;
-            } else if (isLoggedIn) {
-                // Logged-in free users get 30 uploads
-                usesRemaining = Math.max(0, 30 - totalUses);
-            } else {
-                // Signed-out users get 3 uploads
+            // Calculate remaining uses
                 usesRemaining = Math.max(0, 3 - totalUses);
-            }
-            
-            // Update UI based on login state
-            if (isLoggedIn) {
-                // Hide the auth buttons
-                authButtons.classList.add('hidden');
-                
-                // Update login status message
-                const loginStatusMsg = document.getElementById('login-status-msg');
-                if (loginStatusMsg) {
-                    if (isProUser) {
-                        loginStatusMsg.textContent = "Pro user (unlimited)";
-                        loginStatusMsg.classList.add('text-green-600');
-                    } else {
-                        loginStatusMsg.textContent = "Free user (30 uploads)";
-                        loginStatusMsg.classList.add('text-primary');
-                    }
-                }
-                
-                // Set user avatar if available - for desktop
-                const userAvatar = document.getElementById('user-avatar');
-                const fallbackIcon = document.getElementById('fallback-icon');
-                
-                if (user && user.user_metadata) {
-                    const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture;
-                    if (avatarUrl) {
-                        console.log('Setting user avatar to:', avatarUrl);
-                        // Desktop
-                        userAvatar.src = avatarUrl;
-                        userAvatar.style.display = 'block';
-                        fallbackIcon.style.display = 'none';
-                    }
-                } else {
-                    // Try to get avatar from localStorage as fallback
-                    try {
-                        const storedUser = JSON.parse(localStorage.getItem('recibee_user'));
-                        if (storedUser && storedUser.avatarUrl) {
-                            console.log('Using avatar from localStorage:', storedUser.avatarUrl);
-                            // Desktop
-                            userAvatar.src = storedUser.avatarUrl;
-                            userAvatar.style.display = 'block';
-                            fallbackIcon.style.display = 'none';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing stored user:', e);
-                    }
-                }
-            }
             
             // Update remaining uses display in the usage tracker
-            if (isProUser) {
-                remainingUses.textContent = 'Unlimited';
-                remainingUses.classList.add('text-green-600');
-            } else {
-                const maxUses = isLoggedIn ? 30 : 3;
-                remainingUses.textContent = `${usesRemaining}/${maxUses}`;
+            remainingUses.textContent = `${usesRemaining}/3`;
                 
                 // Add color coding based on remaining uses percentage
-                const usagePercentage = usesRemaining / maxUses;
+            const usagePercentage = usesRemaining / 3;
                 remainingUses.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
                 
                 if (usagePercentage <= 0) {
@@ -701,11 +296,10 @@
                     remainingUses.classList.add('text-yellow-600');
                 } else {
                     remainingUses.classList.add('text-green-600');
-                }
             }
             
-            // Disable upload buttons if no uses remaining and not a pro user
-            if (usesRemaining <= 0 && !isProUser) {
+            // Disable upload buttons if no uses remaining
+            if (usesRemaining <= 0) {
                 disableUploadControls();
             }
             
@@ -720,16 +314,10 @@
                 browseTrigger.classList.remove('text-primary', 'cursor-pointer');
                 browseTrigger.classList.add('text-gray-400', 'cursor-not-allowed');
                 
-                // Add a message about upgrading
+                // Add a message about getting notified
                 const upgradeMessage = document.createElement('div');
-                upgradeMessage.className = 'mt-4 text-center text-red-500 font-medium';
-                
-                if (isLoggedIn) {
-                    upgradeMessage.textContent = "You've used all your 30 free uploads. Please upgrade to Pro to continue.";
-                } else {
-                    upgradeMessage.textContent = "You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.";
-                }
-                
+                upgradeMessage.className = 'mt-4 text-center text-primary font-medium';
+                upgradeMessage.textContent = "Thanks for trying out Recibee! Join our waitlist to get notified when we launch with unlimited recipes.";
                 uploadPrompt.appendChild(upgradeMessage);
                 
                 // Prevent drag and drop
@@ -747,12 +335,8 @@
                 e.preventDefault();
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse button clicked');
-                if (usesRemaining <= 0 && !isProUser) {
-                    if (isLoggedIn) {
-                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                    } else {
-                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                    }
+                if (usesRemaining <= 0) {
+                    alert("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     return;
                 }
                 // Ensure the input is properly reset to allow selecting the same file again
@@ -766,12 +350,8 @@
                 e.preventDefault();
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse trigger clicked');
-                if (usesRemaining <= 0 && !isProUser) {
-                    if (isLoggedIn) {
-                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                    } else {
-                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                    }
+                if (usesRemaining <= 0) {
+                    alert("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     return;
                 }
                 // Ensure the input is properly reset to allow selecting the same file again
@@ -794,12 +374,8 @@
                 e.preventDefault();
                 uploadContainer.classList.remove('border-primary');
                 
-                if (usesRemaining <= 0 && !isProUser) {
-                    if (isLoggedIn) {
-                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                    } else {
-                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                    }
+                if (usesRemaining <= 0) {
+                    alert("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     return;
                 }
                 
@@ -824,12 +400,8 @@
             function handleFile(file) {
                 console.log('Processing file:', file.name, file.type, file.size);
                 // Check if user has uses remaining
-                if (usesRemaining <= 0 && !isProUser) {
-                    if (isLoggedIn) {
-                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                    } else {
-                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                    }
+                if (usesRemaining <= 0) {
+                    alert("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     return;
                 }
                 
@@ -868,12 +440,8 @@
                 e.preventDefault();
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Camera button clicked');
-                if (usesRemaining <= 0 && !isProUser) {
-                    if (isLoggedIn) {
-                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                    } else {
-                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                    }
+                if (usesRemaining <= 0) {
+                    alert("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     return;
                 }
                 
@@ -1067,12 +635,8 @@
                 
                 try {
                     // Double check if user still has uses remaining
-                    if (usesRemaining <= 0 && !isProUser) {
-                        if (isLoggedIn) {
-                            throw new Error("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
-                        } else {
-                            throw new Error("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
-                        }
+                    if (usesRemaining <= 0) {
+                        throw new Error("Thanks for trying out Recibee! We hope you enjoyed the experience. Join our waitlist to get notified when we launch with unlimited recipes.");
                     }
                     
                     // Use captured image file if available, otherwise use uploaded file
@@ -1089,58 +653,23 @@
                         throw new Error('No file selected or captured');
                     }
                 
-                    // Track the upload in Supabase
-                    console.log('Tracking upload in Supabase');
-                    const uploadSuccess = await trackUpload();
-                    
-                    if (!uploadSuccess) {
-                        throw new Error("Failed to track upload. Please try again.");
-                    }
-                    
-                    console.log('Upload tracked successfully');
-                    
-                    // Refresh the current user object to get updated metadata
-                    let updatedUser = null;
-                    if (isLoggedIn) {
-                        try {
-                            const { data, error } = await supabaseClient.auth.getUser();
-                            if (!error && data && data.user) {
-                                updatedUser = data.user;
-                                console.log('Retrieved updated user data');
-                            }
-                        } catch (userErr) {
-                            console.error('Error refreshing user data:', userErr);
-                        }
-                    }
-                    
-                    // Increment local usage count - this serves as a backup
+                    // Track usage in localStorage
                     totalUses++;
                     localStorage.setItem('recibee_uses', totalUses);
                     console.log('Local usage count updated:', totalUses);
                     
                     // Update remaining uses
-                    if (!isProUser) {
-                        // If we have updated user metadata, use that
-                        if (updatedUser) {
-                            const metadataCount = getUploadCountFromMetadata(updatedUser);
-                            if (metadataCount !== null) {
-                                totalUses = metadataCount; // Use the metadata count as the source of truth
-                                console.log(`Updated total uses from metadata: ${totalUses}`);
-                            }
-                        }
-                        
-                        const maxUses = isLoggedIn ? 30 : 3;
-                        usesRemaining = Math.max(0, maxUses - totalUses);
+                    usesRemaining = Math.max(0, 3 - totalUses);
                         console.log('Remaining uses updated:', usesRemaining);
                         
                         // Update the displayed remaining uses
                         if (remainingUses) {
-                            remainingUses.textContent = `${usesRemaining}/${maxUses}`;
+                        remainingUses.textContent = `${usesRemaining}/3`;
                             
                             // Update color based on new remaining uses
                             remainingUses.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
                             
-                            const usagePercentage = usesRemaining / maxUses;
+                        const usagePercentage = usesRemaining / 3;
                             if (usagePercentage <= 0) {
                                 remainingUses.classList.add('text-red-600');
                             } else if (usagePercentage <= 0.3) {
@@ -1150,7 +679,6 @@
                             }
                         } else {
                             console.warn('remainingUses element not found');
-                        }
                     }
                     
                     console.log('Redirecting to recipes page in 2 seconds');
@@ -1184,15 +712,8 @@
                 progressBar.style.width = scrollPercent * 100 + '%';
             });
 
-            // This script will update the login status message
-            document.addEventListener('DOMContentLoaded', function() {
-                const loginStatusMsg = document.getElementById('login-status-msg');
-                // Check if the user is logged in (this is just a placeholder, actual code will be executed later)
-                // This will be updated when the main script runs
-                if (loginStatusMsg) {
-                    loginStatusMsg.style.display = 'inline'; // Ensure it's visible
-                }
-            });
+            // Update the login status message
+            document.getElementById('login-status-msg').textContent = '3 free uploads available';
         });
     </script>
     <script src="/assets/js/footer-loader.js"></script>

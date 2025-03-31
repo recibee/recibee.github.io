@@ -39,23 +39,12 @@
             <div class="hidden md:flex space-x-6">
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
-                <a href="/pages/upload.html" class="text-dark hover:text-primary transition-colors font-medium">Upload Ingredients</a>
+                <a href="/index.html#testimonials" class="text-dark hover:text-primary transition-colors font-medium">Testimonials</a>
+                <a href="/pages/pricing.html" class="text-dark hover:text-primary transition-colors font-medium">Pricing</a>
+                
             </div>
             <div class="flex items-center">
-                <!-- Auth buttons - shown when logged out -->
-                <div id="auth-buttons">
-                    <a href="/pages/login.html" class="btn-primary">Sign In</a>
-                </div>
-                
-                <!-- User profile icon - shown when logged in -->
-                <div id="user-info" class="hidden">
-                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
-                        <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
-                            <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
-                        </div>
-                    </a>
-                </div>
+                <a href="/pages/upload.html" class="btn-primary">Upload</a>
             </div>
         </div>
     </nav>
@@ -103,8 +92,8 @@
                                 
                                 <div class="border-t border-dark/10 pt-4">
                                     <a href="/pages/upload.html" class="flex items-center text-primary hover:text-primary/80 transition-colors font-medium">
-                                        <i class="fas fa-camera mr-2"></i>
-                                        Upload New Image
+                                        <i class="fas fa-arrow-left mr-2"></i>
+                                        Back to Upload
                                     </a>
                                 </div>
                             </div>
@@ -113,7 +102,7 @@
                         <div class="flex-grow md:w-2/3">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Recipe Card 1 -->
-                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=1'">
+                                <div class="recipe-card cursor-pointer" data-recipe-id="1">
                                     <div class="image-container">
                                         <img src="/public/images/pasta.webp" 
                                              loading="lazy"
@@ -141,7 +130,7 @@
                                 </div>
 
                                 <!-- Recipe Card 2 -->
-                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=2'">
+                                <div class="recipe-card cursor-pointer" data-recipe-id="2">
                                     <div class="image-container">
                                         <img src="/public/images/ratatouille.webp" 
                                              loading="lazy"
@@ -169,7 +158,7 @@
                                 </div>
 
                                 <!-- Recipe Card 3 -->
-                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=3'">
+                                <div class="recipe-card cursor-pointer" data-recipe-id="3">
                                     <div class="image-container">
                                         <img src="/public/images/salsa.webp" 
                                              loading="lazy"
@@ -197,7 +186,7 @@
                                 </div>
 
                                 <!-- Recipe Card 4 -->
-                                <div class="recipe-card cursor-pointer" onclick="window.location.href='/pages/recipe-details.html?id=4'">
+                                <div class="recipe-card cursor-pointer" data-recipe-id="4">
                                     <div class="image-container">
                                         <img src="/public/images/shakshuka.webp" 
                                              loading="lazy"
@@ -238,37 +227,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // Check if user is logged in
-            const userInfo = document.getElementById('user-info');
-            const authButtons = document.getElementById('auth-buttons');
-            
-            let isLoggedIn = false;
-            
-            // Check if user is logged in
-            const userData = JSON.parse(localStorage.getItem('recibee_user'));
-            if (userData) {
-                isLoggedIn = true;
-                userInfo.classList.remove('hidden');
-                authButtons.classList.add('hidden');
-                
-                // Load user avatar
-                try {
-                    const userAvatar = document.getElementById('user-avatar');
-                    const fallbackIcon = document.getElementById('fallback-icon');
-                    
-                    if (userData.avatarUrl) {
-                        console.log('Using avatar from localStorage:', userData.avatarUrl);
-                        userAvatar.src = userData.avatarUrl;
-                        userAvatar.style.display = 'block';
-                        fallbackIcon.style.display = 'none';
-                    } else {
-                        console.log('No avatar found in localStorage, using fallback icon');
-                    }
-                } catch (e) {
-                    console.error('Error setting user avatar:', e);
-                }
-            }
-            
+            // Handle recipe card clicks
+            const recipeCards = document.querySelectorAll('.recipe-card');
+            recipeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const recipeId = this.getAttribute('data-recipe-id');
+                    window.location.href = '/pages/recipe-details.html?id=' + recipeId;
+                });
+            });
+
             // Bookmark functionality
             const bookmarkButtons = document.querySelectorAll('.author-section button');
             bookmarkButtons.forEach(button => {

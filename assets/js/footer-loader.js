@@ -31,11 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="text-white/70 text-sm">Copyright © Recibee</p>
                             <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
                             <div class="mt-4">
-                                <a href="terms-of-service.html" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
+                                <a href="/pages/terms-of-service" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
                                 <span class="text-white/70">|</span>
-                                <a href="privacy-policy.html" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
+                                <a href="/pages/privacy-policy" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
                                 <span class="text-white/70">|</span>
-                                <a href="report-problem.html" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
+                                <a href="/pages/report-problem" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
                             </div>
                         </div>
                     </div>

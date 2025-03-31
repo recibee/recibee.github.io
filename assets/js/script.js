@@ -74,9 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
-            },
-            auth: {
-                persistSession: true
             }
         }
     );

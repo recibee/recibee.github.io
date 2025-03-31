@@ -24,6 +24,128 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Make tab navigation fully responsive */
+        .tab-button {
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        /* Tab container with horizontal scroll */
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+            scroll-behavior: smooth;
+            position: relative;
+            width: 100%;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Add gradient indicators for scroll */
+        .tabs-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .scroll-indicator-left,
+        .scroll-indicator-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15px;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scroll-indicator-left {
+            left: 0;
+            background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0));
+        }
+        
+        .scroll-indicator-right {
+            right: 0;
+            background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0));
+        }
+        
+        .show-indicator {
+            opacity: 1;
+        }
+        
+        /* Ensure tab content is visible */
+        .tab-content {
+            display: block;
+            width: 100%;
+        }
+        
+        .tab-content.hidden {
+            display: none;
+        }
+        
+        /* Style active tab button */
+        .tab-button.active {
+            color: #ff8000;
+            border-color: #ff8000;
+        }
+        
+        /* Nutrition grid responsive fixes */
+        @media (max-width: 640px) {
+            #nutrition-content .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Recipe image styling with modern UI approach */
+        .recipe-image-container {
+            position: relative;
+            height: 280px; /* Default height for mobile */
+            overflow: hidden;
+            background-color: #f8f8f8;
+        }
+        
+        .recipe-image-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            z-index: 1;
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 30%; /* Focus on the top portion of the image */
+            transition: transform 0.5s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .recipe-image-container {
+                height: 350px; /* Moderate height increase for desktop */
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+            }
+            
+            .recipe-image {
+                object-position: center center; /* Center the image on desktop */
+            }
+            
+            /* Subtle zoom effect on desktop hover */
+            .recipe-image-container:hover .recipe-image {
+                transform: scale(1.03);
+            }
+        }
+    </style>
 </head>
 <body class="bg-cream min-h-screen flex flex-col">
     <!-- Progress Bar -->
@@ -39,24 +161,8 @@
             <div class="hidden md:flex space-x-6">
                 <a href="/index.html#features" class="text-dark hover:text-primary transition-colors font-medium">Features</a>
                 <a href="/index.html#how-it-works" class="text-dark hover:text-primary transition-colors font-medium">How It Works</a>
-                <a href="/pages/upload.html" class="text-dark hover:text-primary transition-colors font-medium">Upload Ingredients</a>
-            </div>
-            <div class="flex items-center">
-                <!-- Auth buttons - shown when logged out -->
-                <div id="auth-buttons">
-                    <a href="/pages/signup.html" class="btn-secondary mr-2">Sign Up</a>
-                    <a href="/pages/login.html" class="btn-primary">Login</a>
-                </div>
-                
-                <!-- User profile icon - shown when logged in -->
-                <div id="user-info" class="hidden">
-                    <a href="/pages/account.html" class="hover:opacity-75 transition-opacity">
-                        <div id="avatar-container" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/30">
-                            <img id="user-avatar" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='flex';" />
-                            <i id="fallback-icon" class="fas fa-user-circle text-primary/70 text-sm sm:text-base" style="display: flex;"></i>
-                        </div>
-                    </a>
-                </div>
+                <a href="/index.html#testimonials" class="text-dark hover:text-primary transition-colors font-medium">Testimonials</a>
+                <a href="/pages/pricing.html" class="text-dark hover:text-primary transition-colors font-medium">Pricing</a>
             </div>
         </div>
     </nav>
@@ -76,12 +182,13 @@
                     
                     <div id="recipe-content" class="bg-white rounded-xl overflow-hidden shadow-lg">
                         <!-- Recipe header image -->
-                        <div class="relative h-80">
+                        <div class="relative recipe-image-container">
                             <img src="/public/images/pasta.webp" 
                                  alt="Classic Tomato Pasta" 
-                                 class="w-full h-full object-cover" 
+                                 class="recipe-image" 
                                  id="recipe-image">
-                            <div class="absolute top-4 right-4 flex gap-2">
+                            <div class="recipe-image-gradient"></div>
+                            <div class="absolute top-4 right-4 flex gap-2 z-10">
                                 <button class="bg-white p-2 rounded-full shadow-md text-primary hover:text-primary/80 transition-colors" id="save-recipe" aria-label="Save recipe">
                                     <i class="far fa-bookmark"></i>
                                 </button>
@@ -124,10 +231,14 @@
                             
                             <!-- Recipe tabs -->
                             <div class="border-b border-dark/10 mb-6">
-                                <div class="flex">
-                                    <button class="tab-button active py-3 px-4 font-medium border-b-2 border-primary text-primary" data-tab="ingredients">Ingredients</button>
-                                    <button class="tab-button py-3 px-4 font-medium border-b-2 border-transparent text-dark/70 hover:text-dark transition-colors" data-tab="instructions">Instructions</button>
-                                    <button class="tab-button py-3 px-4 font-medium border-b-2 border-transparent text-dark/70 hover:text-dark transition-colors" data-tab="nutrition">Nutrition</button>
+                                <div class="tabs-wrapper">
+                                    <div class="scroll-indicator-left" id="scroll-left"></div>
+                                    <div class="tabs-container">
+                                        <button class="tab-button active py-3 px-4 font-medium border-b-2 border-primary text-primary" data-tab="ingredients">Ingredients</button>
+                                        <button class="tab-button py-3 px-4 font-medium border-b-2 border-transparent text-dark/70 hover:text-dark transition-colors" data-tab="instructions">Instructions</button>
+                                        <button class="tab-button py-3 px-4 font-medium border-b-2 border-transparent text-dark/70 hover:text-dark transition-colors" data-tab="nutrition">Nutrition</button>
+                                    </div>
+                                    <div class="scroll-indicator-right" id="scroll-right"></div>
                                 </div>
                             </div>
                             
@@ -228,15 +339,15 @@
                             <div class="mt-10">
                                 <h3 class="text-xl font-semibold mb-4">Similar Recipes</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    <div class="recipe-thumbnail" onclick="window.location.href='recipe-details.html?id=2'">
+                                    <div class="recipe-thumbnail" data-recipe-id="2">
                                         <img src="/public/images/ratatouille.webp" alt="Ratatouille" class="w-full h-32 object-cover rounded-lg">
                                         <h4 class="text-dark font-medium mt-2">Homemade Ratatouille</h4>
                                     </div>
-                                    <div class="recipe-thumbnail" onclick="window.location.href='recipe-details.html?id=3'">
+                                    <div class="recipe-thumbnail" data-recipe-id="3">
                                         <img src="/public/images/salsa.webp" alt="Salsa" class="w-full h-32 object-cover rounded-lg">
                                         <h4 class="text-dark font-medium mt-2">Fresh Tomato Salsa</h4>
                                     </div>
-                                    <div class="recipe-thumbnail" onclick="window.location.href='recipe-details.html?id=4'">
+                                    <div class="recipe-thumbnail" data-recipe-id="4">
                                         <img src="/public/images/shakshuka.webp" alt="Shakshuka" class="w-full h-32 object-cover rounded-lg">
                                         <h4 class="text-dark font-medium mt-2">Shakshuka</h4>
                                     </div>
@@ -251,37 +362,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // Check if user is logged in
-            const userInfo = document.getElementById('user-info');
-            const authButtons = document.getElementById('auth-buttons');
-            
-            let isLoggedIn = false;
-            
-            // Check if user is logged in
-            const userData = JSON.parse(localStorage.getItem('recibee_user'));
-            if (userData) {
-                isLoggedIn = true;
-                userInfo.classList.remove('hidden');
-                authButtons.classList.add('hidden');
-                
-                // Load user avatar
-                try {
-                    const userAvatar = document.getElementById('user-avatar');
-                    const fallbackIcon = document.getElementById('fallback-icon');
-                    
-                    if (userData.avatarUrl) {
-                        console.log('Using avatar from localStorage:', userData.avatarUrl);
-                        userAvatar.src = userData.avatarUrl;
-                        userAvatar.style.display = 'block';
-                        fallbackIcon.style.display = 'none';
-                    } else {
-                        console.log('No avatar found in localStorage, using fallback icon');
-                    }
-                } catch (e) {
-                    console.error('Error setting user avatar:', e);
-                }
-            }
-            
             // Get recipe ID from URL params
             const urlParams = new URLSearchParams(window.location.search);
             const recipeId = urlParams.get('id') || '1';
@@ -315,20 +395,102 @@
             if (recipeData[recipeId]) {
                 document.title = recipeData[recipeId].title + ' - Recibee';
                 document.getElementById('recipe-title').textContent = recipeData[recipeId].title;
-                document.getElementById('recipe-image').src = recipeData[recipeId].image;
+                
+                // Fix the image path by ensuring it starts with a slash
+                let imagePath = recipeData[recipeId].image;
+                if (!imagePath.startsWith('/')) {
+                    imagePath = '/' + imagePath;
+                }
+                document.getElementById('recipe-image').src = imagePath;
             }
+            
+            // Handle similar recipe thumbnails click
+            const recipeThumbnails = document.querySelectorAll('.recipe-thumbnail');
+            recipeThumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    const recipeId = this.getAttribute('data-recipe-id');
+                    window.location.href = '/pages/recipe-details.html?id=' + recipeId;
+                });
+                
+                // Add cursor pointer style
+                thumbnail.style.cursor = 'pointer';
+            });
             
             // Handle tabs
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
+            const tabsContainer = document.querySelector('.tabs-container');
+            const leftIndicator = document.getElementById('scroll-left');
+            const rightIndicator = document.getElementById('scroll-right');
+            
+            // Check for horizontal scroll and update indicators
+            function updateScrollIndicators() {
+                if (tabsContainer.scrollWidth > tabsContainer.clientWidth) {
+                    // Show right indicator if not scrolled all the way to the right
+                    if (tabsContainer.scrollLeft < tabsContainer.scrollWidth - tabsContainer.clientWidth) {
+                        rightIndicator.classList.add('show-indicator');
+                    } else {
+                        rightIndicator.classList.remove('show-indicator');
+                    }
+                    
+                    // Show left indicator if scrolled to the right
+                    if (tabsContainer.scrollLeft > 0) {
+                        leftIndicator.classList.add('show-indicator');
+                    } else {
+                        leftIndicator.classList.remove('show-indicator');
+                    }
+                } else {
+                    // Hide both indicators if no scrolling is needed
+                    leftIndicator.classList.remove('show-indicator');
+                    rightIndicator.classList.remove('show-indicator');
+                }
+            }
+            
+            // Initial check
+            updateScrollIndicators();
+            
+            // Update on window resize
+            window.addEventListener('resize', updateScrollIndicators);
+            
+            // Update on scroll
+            tabsContainer.addEventListener('scroll', updateScrollIndicators);
+            
+            // When a tab is clicked, scroll it into view
+            function scrollTabIntoView(tabButton) {
+                const tabsContainerRect = tabsContainer.getBoundingClientRect();
+                const tabRect = tabButton.getBoundingClientRect();
+                
+                // If tab is not fully visible on the right
+                if (tabRect.right > tabsContainerRect.right) {
+                    tabsContainer.scrollLeft += (tabRect.right - tabsContainerRect.right + 16);
+                }
+                
+                // If tab is not fully visible on the left
+                if (tabRect.left < tabsContainerRect.left) {
+                    tabsContainer.scrollLeft -= (tabsContainerRect.left - tabRect.left + 16);
+                }
+            }
             
             tabButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     // Remove active class from all buttons
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('text-primary');
+                        btn.classList.add('text-dark/70');
+                        btn.classList.remove('border-primary');
+                        btn.classList.add('border-transparent');
+                    });
                     
                     // Add active class to clicked button
                     this.classList.add('active');
+                    this.classList.add('text-primary');
+                    this.classList.remove('text-dark/70');
+                    this.classList.remove('border-transparent');
+                    this.classList.add('border-primary');
+                    
+                    // Scroll the tab into view
+                    scrollTabIntoView(this);
                     
                     // Hide all tab contents
                     tabContents.forEach(content => content.classList.add('hidden'));
