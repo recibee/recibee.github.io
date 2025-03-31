@@ -25,17 +25,20 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading footer:', error);
             // If loading fails, show a basic fallback footer
             footerPlaceholder.innerHTML = `
-                <footer class="bg-dark py-8">
+                <footer class="border-t border-dark/10 py-6 bg-white">
                     <div class="container mx-auto px-4 md:px-6">
-                        <div class="text-center">
-                            <p class="text-white/70 text-sm">Copyright © Recibee</p>
-                            <p class="text-white/70 text-sm mt-2">Made with Love ❤️</p>
-                            <div class="mt-4">
-                                <a href="/pages/terms-of-service" class="text-white/70 text-sm mx-2 hover:text-white">Terms of Service</a>
-                                <span class="text-white/70">|</span>
-                                <a href="/pages/privacy-policy" class="text-white/70 text-sm mx-2 hover:text-white">Privacy Policy</a>
-                                <span class="text-white/70">|</span>
-                                <a href="/pages/report-problem" class="text-white/70 text-sm mx-2 hover:text-white">Report a Problem</a>
+                        <div class="flex flex-col md:flex-row items-center justify-between">
+                            <div class="flex items-center mb-4 md:mb-0">
+                                <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-6 w-auto mr-2">
+                                <span class="text-dark font-medium">Recibee</span>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-dark/60">
+                                <a href="/pages/terms-of-service.html" class="hover:text-primary transition-colors">Terms</a>
+                                <a href="/pages/privacy-policy.html" class="hover:text-primary transition-colors">Privacy</a>
+                                <a href="/pages/report-problem.html" class="hover:text-primary transition-colors">Support</a>
+                            </div>
+                            <div class="mt-4 md:mt-0 text-sm text-dark/60">
+                                &copy; 2023 Recibee
                             </div>
                         </div>
                     </div>
