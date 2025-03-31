@@ -69,7 +69,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Supabase client with direct values
     const supabase = window.supabase.createClient(
         'https://pombxhsrmvrtzkaodmni.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWJ4aHNybXZydHprYW9kbW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxODU5OTAsImV4cCI6MjA1ODc2MTk5MH0.vGl9mYqJwmz8htQHhiMDzVymZAgBHOJwBPH5IiJx2g4'
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvbWJ4aHNybXZydHprYW9kbW5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxODU5OTAsImV4cCI6MjA1ODc2MTk5MH0.vGl9mYqJwmz8htQHhiMDzVymZAgBHOJwBPH5IiJx2g4',
+        {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            auth: {
+                persistSession: true
+            }
+        }
     );
 
     // Initialize form handling
@@ -86,13 +95,24 @@ document.addEventListener('DOMContentLoaded', function() {
             setSuccessState(submitButton, emailInput);
         }
 
-        // Handle form submission
-        waitlistForm.addEventListener('submit', handleSubmit);
-
-        // Prevent default form submission
-        waitlistForm.onsubmit = function() {
-            return false;
-        };
+        // Add fallback form action for GitHub Pages
+        if (window.location.hostname.includes('github.io')) {
+            waitlistForm.action = "https://formspree.io/f/mbjnkpyo"; // Replace with your formspree endpoint
+            waitlistForm.method = "POST";
+            // Still try Supabase first, but allow form to submit naturally if that fails
+            waitlistForm.onsubmit = function(event) {
+                event.preventDefault();
+                handleSubmit(event);
+                return false;
+            };
+        } else {
+            // Handle form submission
+            waitlistForm.addEventListener('submit', handleSubmit);
+            // Prevent default form submission
+            waitlistForm.onsubmit = function() {
+                return false;
+            };
+        }
 
         async function handleSubmit(event) {
             event.preventDefault();
@@ -119,12 +139,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     .insert([{ email }]);
 
                 if (error) {
+                    console.error('Supabase error:', error);
                     if (error.code === '23505') {
                         showError('This email is already registered');
+                        resetButtonState(submitButton);
+                    } else if (error.code === 'PGRST301' || error.message?.includes('CORS')) {
+                        console.log('CORS error detected, trying fallback...');
+                        if (window.location.hostname.includes('github.io')) {
+                            // Allow the form to submit naturally to formspree
+                            showError('Using fallback submission method...');
+                            setTimeout(() => {
+                                waitlistForm.submit();
+                            }, 1000);
+                            return;
+                        } else {
+                            showError('Cross-origin error. Please try locally or contact support.');
+                            resetButtonState(submitButton);
+                        }
                     } else {
-                        showError('Something went wrong. Please try again.');
+                        showError(`Error: ${error.message || 'Something went wrong'}`);
+                        resetButtonState(submitButton);
                     }
-                    resetButtonState(submitButton);
                     return;
                 }
 

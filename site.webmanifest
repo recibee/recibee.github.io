@@ -4,17 +4,17 @@
     "description": "AI-powered recipe suggestions from your ingredients",
     "icons": [
         {
-            "src": "favicon-192x192.png",
+            "src": "/assets/icons/favicon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "favicon-512x512.png",
+            "src": "/assets/icons/favicon-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         },
         {
-            "src": "favicon.svg",
+            "src": "/assets/icons/favicon.svg",
             "sizes": "512x512",
             "type": "image/svg+xml"
         }
