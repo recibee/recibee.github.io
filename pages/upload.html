@@ -159,8 +159,11 @@
                             <div id="usage-tracker" class="mb-6 bg-cream p-4 rounded-lg">
                                 <div class="flex flex-col sm:flex-row items-center justify-between">
                                     <div class="mb-4 sm:mb-0">
-                                        <h3 class="font-semibold">Free Trial Usage</h3>
-                                        <p class="text-dark/70 text-sm">Remaining free uses: <span id="remaining-uses" class="font-medium">3/3</span></p>
+                                        <h3 class="font-semibold">Free Usage</h3>
+                                        <p class="text-dark/70 text-sm">
+                                            <span id="login-status-msg">Login to get 30 uploads</span> • 
+                                            Remaining uses: <span id="remaining-uses" class="font-medium">3/3</span>
+                                        </p>
                                     </div>
                                     <a href="/pages/pricing.html" class="btn-secondary text-sm px-4 py-2">Upgrade to Pro</a>
                                 </div>
@@ -347,6 +350,14 @@
                         
                         if (subError) {
                             console.error('Error checking subscription:', subError);
+                            if (subError.code === '42501' || subError.message?.includes('permission denied')) {
+                                console.log('Permission denied, using local data');
+                                // Use localStorage when permission is denied
+                                if (localStorage.getItem('recibee_uses')) {
+                                    return parseInt(localStorage.getItem('recibee_uses'));
+                                }
+                                return 0;
+                            }
                         } else if (subscription && subscription.is_active) {
                             // If they're a pro user, they have unlimited uploads
                             return 0; // Returning 0 means they haven't used any of their limited uploads
@@ -364,6 +375,10 @@
                             
                         if (countError) {
                             console.error('Error getting user upload count:', countError);
+                            // Use localStorage when we can't get the count
+                            if (localStorage.getItem('recibee_uses')) {
+                                return parseInt(localStorage.getItem('recibee_uses'));
+                            }
                         } else {
                             return count || 0;
                         }
@@ -472,7 +487,11 @@
             // Calculate remaining uses (Pro users have unlimited)
             if (isProUser) {
                 usesRemaining = Infinity;
+            } else if (isLoggedIn) {
+                // Logged-in free users get 30 uploads
+                usesRemaining = Math.max(0, 30 - totalUses);
             } else {
+                // Signed-out users get 3 uploads
                 usesRemaining = Math.max(0, 3 - totalUses);
             }
             
@@ -480,6 +499,18 @@
             if (isLoggedIn) {
                 // Hide the auth buttons
                 authButtons.classList.add('hidden');
+                
+                // Update login status message
+                const loginStatusMsg = document.getElementById('login-status-msg');
+                if (loginStatusMsg) {
+                    if (isProUser) {
+                        loginStatusMsg.textContent = "Pro user (unlimited)";
+                        loginStatusMsg.classList.add('text-green-600');
+                    } else {
+                        loginStatusMsg.textContent = "Free user (30 uploads)";
+                        loginStatusMsg.classList.add('text-primary');
+                    }
+                }
                 
                 // Set user avatar if available - for desktop
                 const userAvatar = document.getElementById('user-avatar');
@@ -516,13 +547,16 @@
                 remainingUses.textContent = 'Unlimited';
                 remainingUses.classList.add('text-green-600');
             } else {
-                remainingUses.textContent = `${usesRemaining}/3`;
+                const maxUses = isLoggedIn ? 30 : 3;
+                remainingUses.textContent = `${usesRemaining}/${maxUses}`;
                 
-                // Add color coding based on remaining uses
+                // Add color coding based on remaining uses percentage
+                const usagePercentage = usesRemaining / maxUses;
                 remainingUses.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
-                if (usesRemaining === 0) {
+                
+                if (usagePercentage <= 0) {
                     remainingUses.classList.add('text-red-600');
-                } else if (usesRemaining === 1) {
+                } else if (usagePercentage <= 0.3) {
                     remainingUses.classList.add('text-yellow-600');
                 } else {
                     remainingUses.classList.add('text-green-600');
@@ -548,7 +582,13 @@
                 // Add a message about upgrading
                 const upgradeMessage = document.createElement('div');
                 upgradeMessage.className = 'mt-4 text-center text-red-500 font-medium';
-                upgradeMessage.textContent = "You've used all your free trials. Please upgrade to Pro to continue.";
+                
+                if (isLoggedIn) {
+                    upgradeMessage.textContent = "You've used all your 30 free uploads. Please upgrade to Pro to continue.";
+                } else {
+                    upgradeMessage.textContent = "You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.";
+                }
+                
                 uploadPrompt.appendChild(upgradeMessage);
                 
                 // Prevent drag and drop
@@ -567,7 +607,11 @@
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
-                    alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    if (isLoggedIn) {
+                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                    } else {
+                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                    }
                     return;
                 }
                 // Ensure the input is properly reset to allow selecting the same file again
@@ -582,7 +626,11 @@
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Browse trigger clicked');
                 if (usesRemaining <= 0 && !isProUser) {
-                    alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    if (isLoggedIn) {
+                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                    } else {
+                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                    }
                     return;
                 }
                 // Ensure the input is properly reset to allow selecting the same file again
@@ -606,7 +654,11 @@
                 uploadContainer.classList.remove('border-primary');
                 
                 if (usesRemaining <= 0 && !isProUser) {
-                    alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    if (isLoggedIn) {
+                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                    } else {
+                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                    }
                     return;
                 }
                 
@@ -632,7 +684,11 @@
                 console.log('Processing file:', file.name, file.type, file.size);
                 // Check if user has uses remaining
                 if (usesRemaining <= 0 && !isProUser) {
-                    alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    if (isLoggedIn) {
+                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                    } else {
+                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                    }
                     return;
                 }
                 
@@ -672,7 +728,11 @@
                 e.stopPropagation(); // Prevent event bubbling
                 console.log('Camera button clicked');
                 if (usesRemaining <= 0 && !isProUser) {
-                    alert("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                    if (isLoggedIn) {
+                        alert("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                    } else {
+                        alert("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                    }
                     return;
                 }
                 
@@ -867,7 +927,11 @@
                 try {
                     // Double check if user still has uses remaining
                     if (usesRemaining <= 0 && !isProUser) {
-                        throw new Error("You've used all your free uploads. Please sign up for a Pro account to continue.");
+                        if (isLoggedIn) {
+                            throw new Error("You've used all your 30 free uploads. Please upgrade to a Pro account to continue.");
+                        } else {
+                            throw new Error("You've used all your 3 free uploads. Sign in to get 30 free uploads or upgrade to Pro.");
+                        }
                     }
                     
                     // Use captured image file if available, otherwise use uploaded file
@@ -901,18 +965,21 @@
                     
                     // Update remaining uses
                     if (!isProUser) {
-                        usesRemaining = Math.max(0, 3 - totalUses);
+                        const maxUses = isLoggedIn ? 30 : 3;
+                        usesRemaining = Math.max(0, maxUses - totalUses);
                         console.log('Remaining uses updated:', usesRemaining);
                         
                         // Update the displayed remaining uses
                         if (remainingUses) {
-                            remainingUses.textContent = `${usesRemaining}/3`;
+                            remainingUses.textContent = `${usesRemaining}/${maxUses}`;
                             
                             // Update color based on new remaining uses
                             remainingUses.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
-                            if (usesRemaining === 0) {
+                            
+                            const usagePercentage = usesRemaining / maxUses;
+                            if (usagePercentage <= 0) {
                                 remainingUses.classList.add('text-red-600');
-                            } else if (usesRemaining === 1) {
+                            } else if (usagePercentage <= 0.3) {
                                 remainingUses.classList.add('text-yellow-600');
                             } else {
                                 remainingUses.classList.add('text-green-600');
@@ -951,6 +1018,16 @@
                 const winHeight = window.innerHeight;
                 const scrollPercent = scrollTop / (docHeight - winHeight);
                 progressBar.style.width = scrollPercent * 100 + '%';
+            });
+
+            // This script will update the login status message
+            document.addEventListener('DOMContentLoaded', function() {
+                const loginStatusMsg = document.getElementById('login-status-msg');
+                // Check if the user is logged in (this is just a placeholder, actual code will be executed later)
+                // This will be updated when the main script runs
+                if (loginStatusMsg) {
+                    loginStatusMsg.style.display = 'inline'; // Ensure it's visible
+                }
             });
         });
     </script>
