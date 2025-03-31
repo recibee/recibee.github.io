@@ -3,92 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
     <title>Page Not Found - Recibee</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 650px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-        #loading {
-            display: block;
-        }
-        #error {
-            display: none;
-        }
-        .logo {
-            max-width: 200px;
-            margin-bottom: 20px;
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #ff8000;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <meta name="title" content="Page Not Found - Recibee">
+    <meta name="description" content="The page you're looking for doesn't exist or has been moved.">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#FF8000">
+    
+    <link rel="stylesheet" href="/dist/output.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles-pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-cream min-h-screen flex flex-col">
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-secondary via-primary to-accent z-[60] w-0 shadow-md"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white backdrop-blur-sm bg-opacity-95 shadow-lg py-4 sticky top-0 z-50 border-b border-dark/10">
+        <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="/" class="flex items-center">
+                    <img src="/assets/icons/favicon.svg" alt="Recibee" class="h-8 w-auto mr-2 rounded-md">
+                    <span class="text-xl font-bold text-dark font-choplin">Recibee</span>
+                </a>
+            </div>
+            <div class="flex items-center">
+                <a href="/" class="btn-primary">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 md:px-6 py-12 md:py-16">
+        <div class="flex flex-col items-center text-center max-w-2xl mx-auto">
+            <div class="mb-8">
+                <img src="/assets/images/404-illustration.svg" alt="Page not found" class="w-64 h-64 mx-auto" onerror="this.src='/assets/icons/favicon.svg'; this.style.filter='grayscale(100%)'; this.style.opacity='0.5';">
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-dark mb-4 font-choplin">404</h1>
+            <h2 class="text-2xl md:text-3xl font-medium text-dark/80 mb-6">Page Not Found</h2>
+            <p class="text-dark/70 mb-8">Sorry, the page you're looking for doesn't exist or has been moved.</p>
+            
+            <div class="flex flex-col md:flex-row gap-4">
+                <a href="/" class="btn-primary">
+                    <i class="fas fa-home mr-2"></i>
+                    Back to Home
+                </a>
+                <a href="/pages/report-problem/" class="btn-secondary">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Report a Problem
+                </a>
+            </div>
+            
+            <div class="mt-12 p-6 bg-white rounded-xl shadow-lg">
+                <h3 class="text-xl font-semibold text-dark mb-4">Looking for something?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="/pages/upload/" class="flex items-center p-4 bg-cream rounded-lg hover:bg-primary/5 transition-colors">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-upload text-primary"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="font-medium text-dark">Upload a Recipe</h4>
+                            <p class="text-dark/70 text-sm">Get recipe suggestions from your food images</p>
+                        </div>
+                    </a>
+                    <a href="/pages/recipes/" class="flex items-center p-4 bg-cream rounded-lg hover:bg-primary/5 transition-colors">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-utensils text-primary"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="font-medium text-dark">Browse Recipes</h4>
+                            <p class="text-dark/70 text-sm">Explore our collection of recipes</p>
+                        </div>
+                    </a>
+                    <a href="/pages/pricing/" class="flex items-center p-4 bg-cream rounded-lg hover:bg-primary/5 transition-colors">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-tag text-primary"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="font-medium text-dark">Pricing</h4>
+                            <p class="text-dark/70 text-sm">View our plans and pricing</p>
+                        </div>
+                    </a>
+                    <a href="/#features" class="flex items-center p-4 bg-cream rounded-lg hover:bg-primary/5 transition-colors">
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mr-3 shrink-0">
+                            <i class="fas fa-star text-primary"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="font-medium text-dark">Features</h4>
+                            <p class="text-dark/70 text-sm">Learn what makes Recibee special</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-placeholder"></div>
+    
     <script>
-        // This script handles clean URLs on GitHub Pages
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get the current path
-            let path = window.location.pathname;
-            let search = window.location.search;
-            
-            // 1. Remove any trailing slashes
-            if (path !== '/' && path.endsWith('/')) {
-                path = path.slice(0, -1);
-            }
-            
-            // 2. Determine if this is a path we should handle
-            const shouldRedirect = !path.includes('.html') && 
-                                  !path.includes('.js') && 
-                                  !path.includes('.css') && 
-                                  !path.includes('.png') && 
-                                  !path.includes('.jpg') && 
-                                  !path.includes('.svg') && 
-                                  !path.includes('.ico');
-            
-            if (shouldRedirect) {
-                // 3. Handle index
-                if (path === '/') {
-                    window.location.replace('/index.html');
-                    return;
-                }
-                
-                // 4. For all other paths, add .html and redirect
-                window.location.replace(path + '.html' + search);
-            } else {
-                // 5. If we shouldn't handle the redirect, show the error
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-            }
+        // Progress bar effect
+        const progressBar = document.getElementById('progress-bar');
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.body.offsetHeight;
+            const winHeight = window.innerHeight;
+            const scrollPercent = scrollTop / (docHeight - winHeight);
+            progressBar.style.width = scrollPercent * 100 + '%';
         });
     </script>
-</head>
-<body>
-    <div id="loading">
-        <img src="/assets/images/logo.png" alt="Recibee Logo" class="logo">
-        <h1>Page Redirecting...</h1>
-        <div class="spinner"></div>
-        <p>Please wait while we redirect you to the right page.</p>
-    </div>
-    
-    <div id="error">
-        <img src="/assets/images/logo.png" alt="Recibee Logo" class="logo">
-        <h1>Page Not Found</h1>
-        <p>Sorry, the page you're looking for doesn't exist.</p>
-        <p>You can go back to <a href="/">home page</a> and try again.</p>
-    </div>
+    <script src="/assets/js/footer-loader.js"></script>
 </body>
 </html> 
